@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:job_app/models.dart';
+import 'package:job_app/view_job_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue, brightness: Brightness.dark),
+            seedColor: Colors.deepOrange, brightness: Brightness.dark),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
@@ -109,7 +111,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                       child: ListView.builder(
                                           itemCount: 5,
                                           itemBuilder: (context, index) {
-                                            return createJobCard(context);
+                                            return InkWell(
+                                                onTap: () => Navigator.of(
+                                                        context)
+                                                    .push(MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ViewJobPage(
+                                                                job: sampleJobs[
+                                                                    0]))),
+                                                child: const JobCard());
                                           }),
                                     )),
                               ),
@@ -140,8 +150,15 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
 
-  Widget createJobCard(BuildContext context) {
+class JobCard extends StatelessWidget {
+  const JobCard({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
       height: 200,
       child: Card(
@@ -253,7 +270,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
             ),
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [],
             )
