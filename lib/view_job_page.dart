@@ -1,5 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:job_app/components/job_status_badge.dart';
+import 'package:job_app/components/payment_status_badge.dart';
+import 'package:job_app/main.dart';
 import 'package:job_app/models.dart';
+import 'package:intl/intl.dart';
 
 class ViewJobPage extends StatelessWidget {
   final Job job;
@@ -58,57 +64,19 @@ class ViewJobPage extends StatelessWidget {
                   Flexible(
                     child: Column(
                       children: [
-                        Flexible(
-                          child: _ViewJobContainer(
-                            title: "Details",
-                            child: Container(
-                              padding: const EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(border: Border.all()),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Flexible(
-                                        child: Row(
-                                          children: [
-                                            const Icon(Icons.person),
-                                            const SizedBox(
-                                              width: 8,
-                                            ),
-                                            Text(
-                                              job.client,
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                      Flexible(
-                                        child: Row(
-                                          children: [
-                                            const Icon(Icons.home),
-                                            const SizedBox(
-                                              width: 8,
-                                            ),
-                                            Text(job.location)
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        _DetailsView(job: job),
                         const SizedBox(
                           height: 16,
                         ),
                         Flexible(
-                          child: _ViewJobContainer(
-                            title: "Materials",
-                            child: Container(
-                              color: Colors.orange,
-                            ),
+                          child: Row(
+                            children: [
+                              _ScheduleView(job: job),
+                              const SizedBox(
+                                width: 16,
+                              ),
+                              _PaymentView(job: job),
+                            ],
                           ),
                         ),
                       ],
@@ -119,38 +87,13 @@ class ViewJobPage extends StatelessWidget {
                   ),
                   // Schedule, Quote, Attachments
                   Flexible(
-                    child: Column(
+                    child: Row(
                       children: [
-                        Flexible(
-                          child: _ViewJobContainer(
-                            title: "Schedule",
-                            child: Container(
-                              color: Colors.orange,
-                            ),
-                          ),
-                        ),
+                        _MaterialsView(job: job),
                         const SizedBox(
-                          height: 16,
+                          width: 16,
                         ),
-                        Flexible(
-                          child: _ViewJobContainer(
-                            title: "Payment",
-                            child: Container(
-                              color: Colors.orange,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 16,
-                        ),
-                        Flexible(
-                          child: _ViewJobContainer(
-                            title: "Attachments",
-                            child: Container(
-                              color: Colors.orange,
-                            ),
-                          ),
-                        ),
+                        _AttachmentsView(job: job),
                       ],
                     ),
                   ),
@@ -164,19 +107,294 @@ class ViewJobPage extends StatelessWidget {
   }
 }
 
-class _ViewJobContainer extends StatelessWidget {
-  final String title;
+class _AttachmentsView extends StatelessWidget {
+  final Job job;
+  const _AttachmentsView({
+    super.key,
+    required this.job,
+  });
 
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: _ViewJobContainer(
+        title: "Attachments",
+        showEditButton: false,
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(border: Border.all()),
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (context, index) {
+                    var att = job.attachments[index];
+
+                    var title = att.url.substring(att.url.lastIndexOf("/") + 1);
+
+                    if (att.name != null) {
+                      title = att.name!;
+                    }
+
+                    return ListTile(
+                      title: Text(title),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 4.0),
+                      trailing: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.delete),
+                      ),
+                    );
+                  },
+                  itemCount: job.attachments.length,
+                ),
+              ),
+              const Divider(),
+              ElevatedButton(
+                  onPressed: () {}, child: const Text("Add Attachment"))
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MaterialsView extends StatelessWidget {
+  final Job job;
+  const _MaterialsView({
+    super.key,
+    required this.job,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: _ViewJobContainer(
+        showEditButton: false,
+        title: "Materials",
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(border: Border.all()),
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (context, index) {
+                    var mat = job.materials[index];
+
+                    var subTotal = mat.quantity * mat.price;
+
+                    return ListTile(
+                      leading: Text("${mat.quantity}x"),
+                      title: Text(mat.name),
+                      subtitle: Text("\$${subTotal.toStringAsFixed(2)}"),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 4.0),
+                      trailing: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.delete),
+                      ),
+                    );
+                  },
+                  itemCount: job.attachments.length,
+                ),
+              ),
+              const Divider(),
+              ElevatedButton(
+                  onPressed: () {}, child: const Text("Add Material"))
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PaymentView extends StatelessWidget {
+  final Job job;
+
+  const _PaymentView({
+    super.key,
+    required this.job,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: _ViewJobContainer(
+        title: "Payment",
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(border: Border.all()),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ViewField(
+                fieldName: "Status",
+                child: PaymentStatusBadge(status: job.paymentStatus),
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              if (job.quotedPrice != null)
+                ViewField(
+                    fieldName: "Amount",
+                    child: Text("\$${job.quotedPrice!.toString()}")),
+              Expanded(child: Container()),
+              Row(
+                children: [
+                  ElevatedButton(
+                      onPressed: () {}, child: const Text("Generate Invoice"))
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ScheduleView extends StatelessWidget {
+  final Job job;
+
+  const _ScheduleView({
+    super.key,
+    required this.job,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: _ViewJobContainer(
+        title: "Schedule",
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(border: Border.all()),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ViewField(
+                  fieldName: "Status",
+                  child: JobStatusBadge(status: job.jobStatus)),
+              const SizedBox(
+                height: 16,
+              ),
+              if (job.scheduledDate != null)
+                ViewField(
+                  fieldName: "Scheduled Date",
+                  child: Text(
+                    dateFormat.format(job.scheduledDate!),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailsView extends StatelessWidget {
+  const _DetailsView({
+    super.key,
+    required this.job,
+  });
+
+  final Job job;
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: _ViewJobContainer(
+        title: "Details",
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(border: Border.all()),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: ViewField(
+                      fieldName: "Client",
+                      child: Text(job.client),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 32,
+                  ),
+                  Flexible(
+                    child: ViewField(
+                        fieldName: "Location", child: Text(job.location)),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              Expanded(
+                  child: ViewField(
+                      fieldName: "Description",
+                      child: Text(job.description ?? ""))),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ViewField extends StatelessWidget {
+  const ViewField({
+    super.key,
+    required this.fieldName,
+    required this.child,
+  });
+
+  final String fieldName;
   final Widget child;
-
-  const _ViewJobContainer({required this.title, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title),
+        Text(fieldName, style: Theme.of(context).textTheme.labelSmall),
+        child
+      ],
+    );
+  }
+}
+
+class _ViewJobContainer extends StatelessWidget {
+  final String title;
+
+  final Widget child;
+  final bool showEditButton;
+
+  const _ViewJobContainer(
+      {required this.title, required this.child, this.showEditButton = true});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title),
+            if (showEditButton)
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () {},
+              ),
+          ],
+        ),
         const SizedBox(
           height: 8,
         ),

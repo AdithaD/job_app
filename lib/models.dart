@@ -18,36 +18,45 @@ class JobMaterial {
 
 class Job {
   final int id;
-  final String title;
-  final String client;
-  final String location;
+  String title;
+  String? description;
+  String client;
+  String location;
 
-  final List<String> tags;
+  List<String> tags;
 
-  final DateTime? scheduledDate;
-  final JobStatus jobStatus;
+  DateTime? scheduledDate;
+  JobStatus jobStatus;
 
-  final PaymentStatus paymentStatus;
-  final double? quotedPrice;
+  PaymentStatus paymentStatus;
+  double? quotedPrice;
 
-  final List<JobMaterial> materials;
+  List<JobMaterial> materials;
 
-  final List<String> attachments;
+  List<JobAttachment> attachments;
 
   Job(
       {required this.id,
       required this.title,
       required this.client,
       required this.location,
+      this.description,
       this.scheduledDate,
       this.jobStatus = JobStatus.unscheduled,
       this.paymentStatus = PaymentStatus.unquoted,
       this.quotedPrice,
       this.tags = const [],
       List<JobMaterial>? materials,
-      List<String>? attachments})
+      List<JobAttachment>? attachments})
       : materials = materials ?? [],
         attachments = attachments ?? [];
+}
+
+class JobAttachment {
+  final String url;
+  final String? name;
+
+  JobAttachment({required this.url, this.name});
 }
 
 // generate sample jobs
@@ -57,6 +66,8 @@ List<Job> sampleJobs = [
     title: 'A/C INSTALLATIONS',
     client: 'John Doe',
     location: '123 Any Street, Anytown, USA',
+    description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     scheduledDate: DateTime(2022, 10, 12),
     jobStatus: JobStatus.scheduled,
     paymentStatus: PaymentStatus.quoted,
@@ -67,8 +78,8 @@ List<Job> sampleJobs = [
       JobMaterial('Labour', 200.0, 2),
     ],
     attachments: [
-      'https://picsum.photos/200',
-      'https://picsum.photos/201',
+      JobAttachment(url: 'https://picsum.photos/199', name: "Sample 1"),
+      JobAttachment(url: 'https://picsum.photos/200', name: "Sample 2"),
     ],
   ),
   Job(
@@ -85,7 +96,7 @@ List<Job> sampleJobs = [
       JobMaterial('Labour', 300.0, 1),
     ],
     attachments: [
-      'https://picsum.photos/202',
+      JobAttachment(url: 'https://picsum.photos/201', name: "Sample 3"),
     ],
   ),
 ];

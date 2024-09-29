@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:job_app/components/job_status_badge.dart';
+import 'package:job_app/components/payment_status_badge.dart';
 import 'package:job_app/models.dart';
 import 'package:job_app/view_job_page.dart';
 
 void main() {
   runApp(const MyApp());
 }
+
+DateFormat dateFormat = DateFormat('hh:mm dd MMM yyyy');
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -219,20 +224,7 @@ class JobCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                            decoration: BoxDecoration(
-                              color: Colors.orange,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: const Text(
-                              "In Progress",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
+                          const JobStatusBadge(status: JobStatus.inProgress),
                           const SizedBox(height: 4),
                           const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -242,20 +234,7 @@ class JobCard extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: const Text(
-                              "QUOTED",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
+                          const PaymentStatusBadge(status: PaymentStatus.paid),
                           Expanded(child: Container()),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
