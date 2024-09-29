@@ -16,11 +16,21 @@ class JobMaterial {
   JobMaterial(this.name, this.price, this.quantity);
 }
 
+class Client {
+  final String id;
+
+  final String name;
+  final String? email;
+  final String? phone;
+
+  Client({required this.id, required this.name, this.email, this.phone});
+}
+
 class Job {
   final int id;
   String title;
   String? description;
-  String client;
+  Client client;
   String location;
 
   List<String> tags;
@@ -64,7 +74,12 @@ List<Job> sampleJobs = [
   Job(
     id: 1,
     title: 'A/C INSTALLATIONS',
-    client: 'John Doe',
+    client: Client(
+      id: '1',
+      name: 'John Doe',
+      email: 'hJqzK@example.com',
+      phone: '123-456-7890',
+    ),
     location: '123 Any Street, Anytown, USA',
     description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
@@ -85,7 +100,12 @@ List<Job> sampleJobs = [
   Job(
     id: 2,
     title: 'PLUMBING',
-    client: 'Jane Doe',
+    client: Client(
+      id: '2',
+      name: 'Jane Doe',
+      email: 'hJqzK@example.com',
+      phone: '123-456-7890',
+    ),
     location: '456 Some Street, Othertown, USA',
     scheduledDate: DateTime(2022, 10, 15),
     jobStatus: JobStatus.inProgress,

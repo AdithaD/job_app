@@ -61,7 +61,11 @@ class _MyHomePageState extends State<MyHomePage> {
               NavigationRailDestination(
                 icon: Icon(Icons.archive),
                 label: Text('Archive'),
-              )
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.person),
+                label: Text('Clients'),
+              ),
             ],
             selectedIndex: 0,
             labelType: NavigationRailLabelType.all,
@@ -114,18 +118,20 @@ class _MyHomePageState extends State<MyHomePage> {
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: ListView.builder(
-                                          itemCount: 5,
-                                          itemBuilder: (context, index) {
-                                            return InkWell(
-                                                onTap: () => Navigator.of(
-                                                        context)
-                                                    .push(MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ViewJobPage(
-                                                                job: sampleJobs[
-                                                                    0]))),
-                                                child: const JobCard());
-                                          }),
+                                        itemCount: sampleJobs.length,
+                                        itemBuilder: (context, index) {
+                                          var job = sampleJobs[index];
+                                          return InkWell(
+                                              onTap: () =>
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ViewJobPage(job: job),
+                                                    ),
+                                                  ),
+                                              child: JobCard(job: job));
+                                        },
+                                      ),
                                     )),
                               ),
                             ],
@@ -158,8 +164,11 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class JobCard extends StatelessWidget {
+  final Job job;
+
   const JobCard({
     super.key,
+    required this.job,
   });
 
   @override
@@ -171,7 +180,7 @@ class JobCard extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text("#1 | REF-01-2000"),
+            Text("#${job.id}"),
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -181,38 +190,42 @@ class JobCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Job Name",
+                        Text(job.title,
                             style: Theme.of(context).textTheme.titleLarge),
-                        const Row(
-                          children: [
-                            Badge(
-                              label: Text("TAG"),
-                            )
-                          ],
+                        const SizedBox(
+                          height: 4,
+                        ),
+                        Row(
+                          children: job.tags
+                              .map((tag) => Badge(
+                                    backgroundColor: Colors.blue,
+                                    textColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 2),
+                                    label: Text(tag),
+                                  ))
+                              .expand((b) => [b, const SizedBox(width: 8)])
+                              .toList(),
                         ),
                         Expanded(
                           child: Container(),
                         ),
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.person),
-                            SizedBox(
+                            const Icon(Icons.person),
+                            const SizedBox(
                               width: 8,
                             ),
-                            Text(
-                              "John Doe",
-                            )
+                            Text(job.client.name),
                           ],
                         ),
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.home),
-                            SizedBox(
+                            const Icon(Icons.home),
+                            const SizedBox(
                               width: 8,
                             ),
-                            Text(
-                              "123 Main St., Anytown USA",
-                            )
+                            Text(job.location)
                           ],
                         ),
                       ],
@@ -224,17 +237,17 @@ class JobCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          const JobStatusBadge(status: JobStatus.inProgress),
+                          JobStatusBadge(status: job.jobStatus),
                           const SizedBox(height: 4),
-                          const Row(
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Icon(Icons.calendar_month),
-                              Text("09:30 12/12/2024")
+                              const Icon(Icons.calendar_month),
+                              Text(dateFormat.format(job.scheduledDate!)),
                             ],
                           ),
                           const SizedBox(height: 8),
-                          const PaymentStatusBadge(status: PaymentStatus.paid),
+                          PaymentStatusBadge(status: job.paymentStatus),
                           Expanded(child: Container()),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,

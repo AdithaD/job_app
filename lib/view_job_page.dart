@@ -14,93 +14,174 @@ class ViewJobPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 120,
-        leading: IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.arrow_back),
-        ),
-        title: Text(
-          job.title,
-          style: Theme.of(context).textTheme.displayMedium,
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.delete),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 120,
+          leading: IconButton(
+            onPressed: Navigator.of(context).pop,
+            icon: const Icon(Icons.arrow_back),
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(32.0, 0.0, 32.0, 32.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: job.tags
-                  .map(
-                    (tag) => Badge(
-                      backgroundColor: Colors.blue,
-                      label: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          tag,
-                          style: Theme.of(context).textTheme.labelLarge,
-                        ),
-                      ),
-                    ),
-                  )
-                  .expand((b) => [b, const SizedBox(width: 8)])
-                  .toList(),
+          title: Text(
+            job.title,
+            style: Theme.of(context).textTheme.displayMedium,
+          ),
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.delete),
             ),
-            const SizedBox(
-              height: 16.0,
-            ),
-            Expanded(
-              child: Row(
+          ],
+          bottom: const TabBar(
+            tabs: [
+              Tab(
+                text: "Details",
+                icon: Icon(Icons.list_alt),
+              ),
+              Tab(
+                text: "Pricing",
+                icon: Icon(Icons.attach_money),
+              ),
+              Tab(
+                text: "Attachments",
+                icon: Icon(Icons.attach_file),
+              ),
+            ],
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(32.0, 16.0, 32.0, 32.0),
+          child: TabBarView(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Details and Materials
-                  Flexible(
-                    child: Column(
+                  Expanded(
+                    child: Row(
                       children: [
-                        _DetailsView(job: job),
-                        const SizedBox(
-                          height: 16,
-                        ),
                         Flexible(
                           child: Row(
                             children: [
-                              _ScheduleView(job: job),
+                              _DetailsView(job: job),
                               const SizedBox(
                                 width: 16,
                               ),
-                              _PaymentView(job: job),
+                              Flexible(
+                                child: _ClientDetailsView(job: job),
+                              ),
+                              const SizedBox(
+                                width: 16,
+                              ),
+                              _ScheduleView(job: job),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 48.0,
-                  ),
-                  // Schedule, Quote, Attachments
-                  Flexible(
-                    child: Row(
-                      children: [
-                        _MaterialsView(job: job),
                         const SizedBox(
-                          width: 16,
+                          width: 48.0,
                         ),
-                        _AttachmentsView(job: job),
+                        // Schedule, Quote, Attachments
                       ],
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
+              Flexible(
+                child: Row(
+                  children: [
+                    _MaterialsView(job: job),
+                    const SizedBox(
+                      width: 16,
+                    ),
+                    _PaymentView(job: job),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: Row(
+                  children: [
+                    _AttachmentsView(job: job),
+                    const SizedBox(
+                      width: 16,
+                    ),
+                    _NotesView(job: job),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ClientDetailsView extends StatelessWidget {
+  final Job job;
+  const _ClientDetailsView({
+    super.key,
+    required this.job,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: _ViewJobContainer(
+        title: "Client",
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(border: Border.all()),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ViewField(
+                fieldName: "Name",
+                child: Text(job.client.name),
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              ViewField(
+                fieldName: "Email",
+                child: Text(job.client.email ?? ""),
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              ViewField(
+                fieldName: "Phone",
+                child: Text(job.client.phone ?? ""),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NotesView extends StatelessWidget {
+  final Job job;
+  const _NotesView({
+    super.key,
+    required this.job,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: _ViewJobContainer(
+        title: "Notes",
+        showEditButton: false,
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(border: Border.all()),
+          child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(""),
+            ],
+          ),
         ),
       ),
     );
@@ -185,16 +266,27 @@ class _MaterialsView extends StatelessWidget {
 
                     var subTotal = mat.quantity * mat.price;
 
-                    return ListTile(
-                      leading: Text("${mat.quantity}x"),
-                      title: Text(mat.name),
-                      subtitle: Text("\$${subTotal.toStringAsFixed(2)}"),
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 4.0),
-                      trailing: IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.delete),
-                      ),
+                    return Column(
+                      children: [
+                        ListTile(
+                          leading: Text(
+                            "${mat.quantity}x",
+                          ),
+                          title: Text(mat.name),
+                          subtitle: Text(
+                              "\$${subTotal.toStringAsFixed(2)} (${mat.price})"),
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 4.0),
+                          trailing: IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.remove_circle_sharp),
+                          ),
+                        ),
+                        if (index < job.materials.length - 1)
+                          const Divider(
+                            thickness: 0.0,
+                          ),
+                      ],
                     );
                   },
                   itemCount: job.attachments.length,
@@ -240,10 +332,13 @@ class _PaymentView extends StatelessWidget {
               if (job.quotedPrice != null)
                 ViewField(
                     fieldName: "Amount",
-                    child: Text("\$${job.quotedPrice!.toString()}")),
+                    child: Text("\$${job.quotedPrice!.toStringAsFixed(2)}")),
               Expanded(child: Container()),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  ElevatedButton(
+                      onPressed: () {}, child: const Text("Generate Quote")),
                   ElevatedButton(
                       onPressed: () {}, child: const Text("Generate Invoice"))
                 ],
@@ -315,18 +410,32 @@ class _DetailsView extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              ViewField(
+                fieldName: "Tags",
+                child: Row(
+                  children: job.tags
+                      .map(
+                        (tag) => Badge(
+                          backgroundColor: Colors.blue,
+                          label: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              tag,
+                              style: Theme.of(context).textTheme.labelLarge,
+                            ),
+                          ),
+                        ),
+                      )
+                      .expand((b) => [b, const SizedBox(width: 8)])
+                      .toList(),
+                ),
+              ),
+              const SizedBox(
+                height: 16,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Flexible(
-                    child: ViewField(
-                      fieldName: "Client",
-                      child: Text(job.client),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 32,
-                  ),
                   Flexible(
                     child: ViewField(
                         fieldName: "Location", child: Text(job.location)),
@@ -363,7 +472,10 @@ class ViewField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(fieldName, style: Theme.of(context).textTheme.labelSmall),
+        Text(fieldName, style: Theme.of(context).textTheme.labelMedium),
+        const SizedBox(
+          height: 8,
+        ),
         child
       ],
     );
@@ -384,16 +496,19 @@ class _ViewJobContainer extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(title),
-            if (showEditButton)
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () {},
-              ),
-          ],
+        SizedBox(
+          height: 32,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(title),
+              if (showEditButton)
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {},
+                ),
+            ],
+          ),
         ),
         const SizedBox(
           height: 8,
