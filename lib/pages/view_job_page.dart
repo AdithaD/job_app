@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:job_app/components/job_status_badge.dart';
 import 'package:job_app/components/payment_status_badge.dart';
 import 'package:job_app/main.dart';
-import 'package:job_app/models.dart';
-import 'package:intl/intl.dart';
+import 'package:job_app/models/job.dart';
 
 class ViewJobPage extends StatelessWidget {
   final Job job;
@@ -67,9 +64,7 @@ class ViewJobPage extends StatelessWidget {
                               const SizedBox(
                                 width: 16,
                               ),
-                              Flexible(
-                                child: _ClientDetailsView(job: job),
-                              ),
+                              _ClientDetailsView(job: job),
                               const SizedBox(
                                 width: 16,
                               ),
@@ -138,14 +133,14 @@ class _ClientDetailsView extends StatelessWidget {
                 fieldName: "Name",
                 child: Text(job.client.name),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 16,
               ),
               ViewField(
                 fieldName: "Email",
                 child: Text(job.client.email ?? ""),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 16,
               ),
               ViewField(
@@ -211,14 +206,8 @@ class _AttachmentsView extends StatelessWidget {
                   itemBuilder: (context, index) {
                     var att = job.attachments[index];
 
-                    var title = att.url.substring(att.url.lastIndexOf("/") + 1);
-
-                    if (att.name != null) {
-                      title = att.name!;
-                    }
-
                     return ListTile(
-                      title: Text(title),
+                      title: Text(att.name),
                       contentPadding:
                           const EdgeInsets.symmetric(horizontal: 4.0),
                       trailing: IconButton(
@@ -409,6 +398,7 @@ class _DetailsView extends StatelessWidget {
           decoration: BoxDecoration(border: Border.all()),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ViewField(
                 fieldName: "Tags",
@@ -420,7 +410,7 @@ class _DetailsView extends StatelessWidget {
                           label: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              tag,
+                              tag.name,
                               style: Theme.of(context).textTheme.labelLarge,
                             ),
                           ),

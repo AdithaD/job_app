@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:job_app/models.dart';
+import 'package:job_app/models/job.dart';
 
 class PaymentStatusBadge extends StatelessWidget {
   final PaymentStatus status;
