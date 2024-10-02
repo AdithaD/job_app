@@ -99,32 +99,33 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                             ),
                                           ]),
                                       Expanded(
-                                        child: Container(
-                                            decoration: BoxDecoration(
-                                                border: Border.all()),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: ListView.builder(
-                                                itemCount: jobs.length,
-                                                itemBuilder: (context, index) {
-                                                  var job = jobs[index];
-                                                  return InkWell(
-                                                    onTap: () =>
-                                                        Navigator.of(context)
-                                                            .push(
+                                          child: Container(
+                                        decoration:
+                                            BoxDecoration(border: Border.all()),
+                                        child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: ListView.builder(
+                                              itemCount: jobs.length,
+                                              itemBuilder: (context, index) {
+                                                var job = jobs[index];
+                                                return InkWell(
+                                                  child:
+                                                      JobCard(jobId: job.id!),
+                                                  onTap: () {
+                                                    ref.invalidate(
+                                                        jobByIdPod(job.id!));
+                                                    Navigator.of(context).push(
                                                       MaterialPageRoute(
                                                         builder: (context) =>
                                                             ViewJobPage(
                                                                 jobId: job.id!),
                                                       ),
-                                                    ),
-                                                    child: JobCard(job: job),
-                                                  );
-                                                },
-                                              ),
+                                                    );
+                                                  },
+                                                );
+                                              },
                                             )),
-                                      ),
+                                      )),
                                     ],
                                   ),
                                 ),
@@ -159,110 +160,116 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 }
 
-class JobCard extends StatelessWidget {
-  final Job job;
+class JobCard extends ConsumerWidget {
+  final String jobId;
 
   const JobCard({
     super.key,
-    required this.job,
+    required this.jobId,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text("#${job.jobId}"),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Flexible(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(job.title,
-                            style: Theme.of(context).textTheme.titleLarge),
-                        const SizedBox(
-                          height: 4,
-                        ),
-                        Row(
-                          children: job.tags
-                              .map((tag) => Badge(
-                                    backgroundColor: Colors.blue,
-                                    textColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 2),
-                                    label: Text(tag.name),
-                                  ))
-                              .expand((b) => [b, const SizedBox(width: 8)])
-                              .toList(),
-                        ),
-                        Expanded(
-                          child: Container(),
-                        ),
-                        Row(
-                          children: [
-                            const Icon(Icons.person),
-                            const SizedBox(
-                              width: 8,
-                            ),
-                            Text(job.client.name),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            const Icon(Icons.home),
-                            const SizedBox(
-                              width: 8,
-                            ),
-                            Text(job.location)
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                      flex: 1,
+  Widget build(BuildContext context, WidgetRef ref) {
+    var job = ref.watch(jobByIdPod(jobId));
+
+    return job.when(
+      error: (object, stacktrace) => Text("Error ${object.toString()}"),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      data: (job) => SizedBox(
+        height: 200,
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text("#${job.jobId}"),
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Flexible(
+                      flex: 2,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          JobStatusBadge(status: job.jobStatus),
-                          const SizedBox(height: 4),
+                          Text(job.title,
+                              style: Theme.of(context).textTheme.titleLarge),
+                          const SizedBox(
+                            height: 4,
+                          ),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: job.tags
+                                .map((tag) => Badge(
+                                      backgroundColor: Colors.blue,
+                                      textColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 2),
+                                      label: Text(tag.name),
+                                    ))
+                                .expand((b) => [b, const SizedBox(width: 8)])
+                                .toList(),
+                          ),
+                          Expanded(
+                            child: Container(),
+                          ),
+                          Row(
                             children: [
-                              const Icon(Icons.calendar_month),
-                              Text(dateFormat.format(job.scheduledDate!)),
+                              const Icon(Icons.person),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              Text(job.client.name),
                             ],
                           ),
-                          const SizedBox(height: 8),
-                          PaymentStatusBadge(status: job.paymentStatus),
-                          Expanded(child: Container()),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(Icons.edit))
+                              const Icon(Icons.home),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              Text(job.location)
                             ],
                           ),
                         ],
-                      ))
-                ],
+                      ),
+                    ),
+                    Flexible(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            JobStatusBadge(status: job.jobStatus),
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Icon(Icons.calendar_month),
+                                Text(dateFormat.format(job.scheduledDate!)),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            PaymentStatusBadge(status: job.paymentStatus),
+                            Expanded(child: Container()),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                IconButton(
+                                    onPressed: () {},
+                                    icon: const Icon(Icons.edit))
+                              ],
+                            ),
+                          ],
+                        ))
+                  ],
+                ),
               ),
-            ),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [],
-            )
-          ]),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [],
+              )
+            ]),
+          ),
         ),
       ),
     );
