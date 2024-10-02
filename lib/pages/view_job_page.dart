@@ -312,6 +312,11 @@ class _PaymentView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Flexible(
       child: _ViewJobContainer(
+        onEdit: () => showDialog(
+            context: context,
+            builder: (context) => _PaymentEditDialog(
+                  job: job,
+                )),
         title: "Payment",
         child: Container(
           padding: const EdgeInsets.all(16.0),
@@ -808,7 +813,8 @@ class _ScheduleEditDialogState extends ConsumerState<_ScheduleEditDialog> {
                       .map(
                         (status) => DropdownMenuItem(
                           value: status,
-                          child: Text(statusMap[status] ?? status.toString(),
+                          child: Text(
+                              jobStatusStringMap[status] ?? status.toString(),
                               style: Theme.of(context).textTheme.bodyMedium),
                         ),
                       )
@@ -850,6 +856,7 @@ class _ScheduleEditDialogState extends ConsumerState<_ScheduleEditDialog> {
                             context: context,
                             initialTime: TimeOfDay.now(),
                           );
+
                           var dateTime =
                               DateTime(date.year, date.month, date.day);
 
@@ -865,6 +872,122 @@ class _ScheduleEditDialogState extends ConsumerState<_ScheduleEditDialog> {
                       },
                     ),
                   ],
+                ),
+              ],
+            ),
+            Expanded(
+              child: Container(),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _save();
+                Navigator.of(context).pop();
+              },
+              child: const Text("Save"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PaymentEditDialog extends ConsumerStatefulWidget {
+  final Job job;
+
+  const _PaymentEditDialog({super.key, required this.job});
+
+  @override
+  ConsumerState<_PaymentEditDialog> createState() => _PaymentEditDialogState();
+}
+
+class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
+  late PaymentStatus _newStatus;
+
+  var quotedPriceController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _newStatus = widget.job.paymentStatus;
+
+    quotedPriceController.text = widget.job.quotedPrice?.toString() ?? "";
+  }
+
+  void _save() async {
+    var newJob = widget.job;
+    newJob.paymentStatus = _newStatus;
+    newJob.quotedPrice =
+        double.tryParse(quotedPriceController.text) ?? widget.job.quotedPrice;
+
+    var jobs = await ref.read(jobsPod.future);
+
+    await jobs.update(widget.job.id!, body: newJob.toJson());
+    ref.invalidate(jobByIdPod(widget.job.id!));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        height: 400,
+        width: 400,
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              "Schedule",
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            const SizedBox(height: 32),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Payment Status",
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+                const SizedBox(height: 2),
+                DropdownButton(
+                  value: _newStatus,
+                  isExpanded: true,
+                  padding: const EdgeInsets.all(2.0),
+                  items: PaymentStatus.values
+                      .map(
+                        (status) => DropdownMenuItem(
+                          value: status,
+                          child: Text(
+                              paymentStatusStringMap[status] ??
+                                  status.toString(),
+                              style: Theme.of(context).textTheme.bodyMedium),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (status) => setState(() {
+                    _newStatus = status ?? widget.job.paymentStatus;
+                  }),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  "Quote Amount",
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: 60,
+                  child: TextField(
+                    controller: quotedPriceController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
                 ),
               ],
             ),

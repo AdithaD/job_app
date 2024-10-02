@@ -15,11 +15,11 @@ class JobStatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
       decoration: BoxDecoration(
-        color: colorMap[status] ?? Colors.grey,
+        color: jobStatusColorMap[status] ?? Colors.grey,
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
-        statusMap[status] ?? "",
+        jobStatusStringMap[status] ?? "",
         textAlign: TextAlign.center,
         style: const TextStyle(
           color: Colors.white,
