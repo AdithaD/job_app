@@ -1,3 +1,4 @@
+import 'package:job_app/models/job.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,7 +35,24 @@ Future<PocketBase> getPocketBase() async {
 
 final jobsPod = FutureProvider((ref) async {
   var pb = await ref.watch(pocketBasePod.future);
-  return pb
+  return pb.collection('jobs');
+});
+
+final jobByIdPod = FutureProvider.family<Job, String>((ref, id) async {
+  var pb = await ref.watch(pocketBasePod.future);
+  var rm = await pb
       .collection('jobs')
-      .getFullList(expand: "client,materials,attachments,tags");
+      .getOne(id, expand: "client,materials,attachments,tags");
+
+  return Job.fromRecord(rm);
+});
+
+final allJobsPod = FutureProvider((ref) async {
+  var jobCollection = await ref.watch(jobsPod.future);
+  return jobCollection.getFullList(expand: "client,materials,attachments,tags");
+});
+
+final tagsPod = FutureProvider((ref) async {
+  var pb = await ref.watch(pocketBasePod.future);
+  return pb.collection('tags');
 });

@@ -4,10 +4,11 @@ part 'job_attachment.g.dart';
 
 @JsonSerializable()
 class JobAttachment {
+  final String? id;
   final String name;
   final String? file;
 
-  JobAttachment({required this.name, this.file});
+  JobAttachment({this.id, required this.name, this.file});
 
   factory JobAttachment.fromJson(Map<String, dynamic> json) =>
       _$JobAttachmentFromJson(json);

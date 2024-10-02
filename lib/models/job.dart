@@ -19,15 +19,16 @@ enum PaymentStatus { unquoted, quoted, invoiced, paid }
 
 @JsonSerializable()
 class Job {
+  String? id;
   int jobId;
   String title;
   String? description;
 
-  @JsonKey(readValue: readExpandedClientJSON)
+  @JsonKey(readValue: readExpandedClientJSON, toJson: clientIdGetter)
   Client client;
   String location;
 
-  @JsonKey(readValue: readExpandedTagsJSON)
+  @JsonKey(readValue: readExpandedTagsJSON, toJson: tagIdsGetter)
   List<Tag> tags;
 
   DateTime? scheduledDate;
@@ -36,10 +37,10 @@ class Job {
   PaymentStatus paymentStatus;
   double? quotedPrice;
 
-  @JsonKey(readValue: readExpandedMaterialsJSON)
+  @JsonKey(readValue: readExpandedMaterialsJSON, toJson: materialIdsGetter)
   List<JobMaterial> materials;
 
-  @JsonKey(readValue: readExpandedAttachmentsJSON)
+  @JsonKey(readValue: readExpandedAttachmentsJSON, toJson: attachmentIdsGetter)
   List<JobAttachment> attachments;
 
   factory Job.fromRecord(RecordModel record) => Job.fromJson(record.toJson());
@@ -49,7 +50,8 @@ class Job {
   Map<String, dynamic> toJson() => _$JobToJson(this);
 
   Job(
-      {required this.jobId,
+      {this.id = "",
+      required this.jobId,
       required this.title,
       required this.client,
       required this.location,
@@ -63,6 +65,20 @@ class Job {
       List<JobAttachment>? attachments})
       : materials = materials ?? [],
         attachments = attachments ?? [];
+}
+
+String? clientIdGetter(Client client) => client.id;
+
+List<String> tagIdsGetter(List<Tag> tags) {
+  return tags.map((tag) => tag.id ?? "").toList();
+}
+
+List<String> materialIdsGetter(List<JobMaterial> materials) {
+  return materials.map((material) => material.id ?? "").toList();
+}
+
+List<String> attachmentIdsGetter(List<JobAttachment> attachments) {
+  return attachments.map((attachment) => attachment.id ?? "").toList();
 }
 
 Object? readExpandedClientJSON(Map<dynamic, dynamic> json, key) {

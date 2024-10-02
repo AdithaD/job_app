@@ -7,6 +7,7 @@ part of 'job.dart';
 // **************************************************************************
 
 Job _$JobFromJson(Map<String, dynamic> json) => Job(
+      id: json['id'] as String? ?? "",
       jobId: (json['jobId'] as num).toInt(),
       title: json['title'] as String,
       client: Client.fromJson(
@@ -37,18 +38,19 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
     );
 
 Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
+      'id': instance.id,
       'jobId': instance.jobId,
       'title': instance.title,
       'description': instance.description,
-      'client': instance.client,
+      'client': clientIdGetter(instance.client),
       'location': instance.location,
-      'tags': instance.tags,
+      'tags': tagIdsGetter(instance.tags),
       'scheduledDate': instance.scheduledDate?.toIso8601String(),
       'jobStatus': _$JobStatusEnumMap[instance.jobStatus]!,
       'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
       'quotedPrice': instance.quotedPrice,
-      'materials': instance.materials,
-      'attachments': instance.attachments,
+      'materials': materialIdsGetter(instance.materials),
+      'attachments': attachmentIdsGetter(instance.attachments),
     };
 
 const _$JobStatusEnumMap = {

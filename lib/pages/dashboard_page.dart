@@ -19,7 +19,7 @@ class DashboardPage extends ConsumerStatefulWidget {
 class _DashboardPageState extends ConsumerState<DashboardPage> {
   @override
   Widget build(BuildContext context) {
-    var result = ref.watch(jobsPod);
+    var result = ref.watch(allJobsPod);
 
     return Scaffold(
       body: Row(
@@ -49,7 +49,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               child: Builder(
                 builder: (context) {
                   return result.when(
-                    error: (object, stacktrace) => const Text("Error!"),
+                    error: (object, stacktrace) =>
+                        Text("Error ${object.toString()}"),
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),
                     data: (jobRecordModels) {
@@ -115,7 +116,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                                       MaterialPageRoute(
                                                         builder: (context) =>
                                                             ViewJobPage(
-                                                                job: job),
+                                                                jobId: job.id!),
                                                       ),
                                                     ),
                                                     child: JobCard(job: job),

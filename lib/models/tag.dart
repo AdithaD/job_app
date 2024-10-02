@@ -5,6 +5,7 @@ part 'tag.g.dart';
 
 @JsonSerializable()
 class Tag {
+  String? id;
   String owner;
   String name;
 
@@ -14,5 +15,5 @@ class Tag {
 
   Map<String, dynamic> toJson() => _$TagToJson(this);
 
-  Tag({required this.owner, required this.name});
+  Tag({required this.id, required this.owner, required this.name});
 }

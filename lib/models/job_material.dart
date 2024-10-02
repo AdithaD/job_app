@@ -4,6 +4,7 @@ part 'job_material.g.dart';
 
 @JsonSerializable()
 class JobMaterial {
+  final String? id;
   final String name;
   final double price;
   final int quantity;
@@ -14,5 +15,6 @@ class JobMaterial {
 
   Map<String, dynamic> toJson() => _$JobMaterialToJson(this);
 
-  JobMaterial(this.name, this.price, this.quantity, {this.saved = false});
+  JobMaterial(this.id, this.name, this.price, this.quantity,
+      {this.saved = false});
 }
