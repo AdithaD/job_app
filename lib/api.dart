@@ -67,3 +67,8 @@ final notesPod = FutureProvider((ref) async {
   var pb = await ref.watch(pocketBasePod.future);
   return pb.collection('notes');
 });
+
+final materialsPod = FutureProvider((ref) async {
+  var pb = await ref.watch(pocketBasePod.future);
+  return pb.collection('materials');
+});

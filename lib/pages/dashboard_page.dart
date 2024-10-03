@@ -5,7 +5,7 @@ import 'package:job_app/components/job_status_badge.dart';
 import 'package:job_app/components/payment_status_badge.dart';
 import 'package:job_app/main.dart';
 import 'package:job_app/models/job.dart';
-import 'package:job_app/pages/view_job_page.dart';
+import 'package:job_app/pages/view_job/view_job_page.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key, required this.title});
