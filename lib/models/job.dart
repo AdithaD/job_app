@@ -1,6 +1,7 @@
 import 'package:job_app/models/client.dart';
 import 'package:job_app/models/job_attachment.dart';
 import 'package:job_app/models/job_material.dart';
+import 'package:job_app/models/notes.dart';
 import 'package:job_app/models/tag.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:pocketbase/pocketbase.dart';
@@ -40,6 +41,9 @@ class Job {
   @JsonKey(readValue: readExpandedMaterialsJSON, toJson: materialIdsGetter)
   List<JobMaterial> materials;
 
+  @JsonKey(readValue: readExpandedNotesJSON, toJson: noteIdsGetter)
+  List<Note> notes;
+
   @JsonKey(readValue: readExpandedAttachmentsJSON, toJson: attachmentIdsGetter)
   List<JobAttachment> attachments;
 
@@ -62,9 +66,11 @@ class Job {
       this.quotedPrice,
       this.tags = const [],
       List<JobMaterial>? materials,
-      List<JobAttachment>? attachments})
+      List<JobAttachment>? attachments,
+      List<Note>? notes})
       : materials = materials ?? [],
-        attachments = attachments ?? [];
+        attachments = attachments ?? [],
+        notes = notes ?? [];
 }
 
 String? clientIdGetter(Client client) => client.id;
@@ -81,6 +87,10 @@ List<String> attachmentIdsGetter(List<JobAttachment> attachments) {
   return attachments.map((attachment) => attachment.id ?? "").toList();
 }
 
+List<String> noteIdsGetter(List<Note> notes) {
+  return notes.map((note) => note.id ?? "").toList();
+}
+
 Object? readExpandedClientJSON(Map<dynamic, dynamic> json, key) {
   return json["expand"]["client"];
 }
@@ -95,4 +105,8 @@ Object? readExpandedAttachmentsJSON(Map<dynamic, dynamic> json, key) {
 
 Object? readExpandedTagsJSON(Map<dynamic, dynamic> json, key) {
   return json["expand"]["tags"];
+}
+
+Object? readExpandedNotesJSON(Map<dynamic, dynamic> json, key) {
+  return json["expand"]["notes"];
 }

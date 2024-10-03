@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:job_app/api.dart';
 import 'package:job_app/components/job_status_badge.dart';
 import 'package:job_app/components/payment_status_badge.dart';
 import 'package:job_app/components/strings.dart';
 import 'package:job_app/main.dart';
 import 'package:job_app/models/job.dart';
+import 'package:job_app/models/notes.dart';
 import 'package:job_app/models/tag.dart';
 
 class ViewJobPage extends ConsumerWidget {
@@ -19,8 +19,7 @@ class ViewJobPage extends ConsumerWidget {
     final job = ref.watch(jobByIdPod(jobId));
 
     return job.when(
-      error: (error, stackTrace) =>
-          Text(error.toString() + ", Brother!" + stackTrace.toString()),
+      error: (error, stackTrace) => Text("$error, Brother!$stackTrace"),
       loading: () => const CircularProgressIndicator(),
       data: (job) => DefaultTabController(
         length: 3,
@@ -122,7 +121,6 @@ class ViewJobPage extends ConsumerWidget {
 class _ClientDetailsView extends StatelessWidget {
   final Job job;
   const _ClientDetailsView({
-    super.key,
     required this.job,
   });
 
@@ -163,15 +161,19 @@ class _ClientDetailsView extends StatelessWidget {
   }
 }
 
-class _NotesView extends StatelessWidget {
+class _NotesView extends ConsumerWidget {
   final Job job;
   const _NotesView({
-    super.key,
     required this.job,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    var sortedNotes = job.notes.toList();
+    sortedNotes.sort((a, b) => b.updated!.compareTo(a.updated!));
+
+    ref.watch(notesPod);
+
     return Flexible(
       child: _ViewJobContainer(
         title: "Notes",
@@ -179,22 +181,139 @@ class _NotesView extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(border: Border.all()),
-          child: const Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(""),
+              Expanded(
+                  child: ListView.builder(
+                      itemCount: job.notes.length,
+                      itemBuilder: (context, index) {
+                        var note = sortedNotes[index];
+
+                        return Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(note.text),
+                                const SizedBox(
+                                  height: 24,
+                                ),
+                                const Divider(),
+                                Row(
+                                  children: [
+                                    Text(
+                                        "Updated: ${dateFormat.format(note.updated!)}",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelMedium),
+                                    const Spacer(),
+                                    IconButton(
+                                        onPressed: () =>
+                                            _editNote(context, note),
+                                        icon: const Icon(Icons.edit)),
+                                    IconButton(
+                                        onPressed: _deleteNote,
+                                        icon: const Icon(Icons.delete))
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      })),
+              const Divider(),
+              LargeElevatedButton(
+                  onPressed: () => _editNote(context, Note(text: "")),
+                  label: "Add note"),
             ],
           ),
         ),
       ),
     );
   }
+
+  void _editNote(BuildContext context, Note note) async {
+    await showDialog(
+        context: context,
+        builder: (context) => _EditNoteDialog(note: note, jobId: job.id!));
+  }
+
+  void _deleteNote() {}
+}
+
+class _EditNoteDialog extends ConsumerWidget {
+  final Note note;
+  final String jobId;
+
+  const _EditNoteDialog({required this.note, required this.jobId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var controller = TextEditingController(text: note.text);
+    return Dialog(
+      child: SizedBox(
+        width: 400,
+        height: 400,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text("Edit note", style: Theme.of(context).textTheme.labelLarge),
+              const SizedBox(
+                height: 24,
+              ),
+              Expanded(
+                child: TextField(
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Note',
+                    hintText: 'Enter your note',
+                  ),
+                  minLines: 10,
+                  maxLines: 12,
+                  controller: controller,
+                  autofocus: true,
+                ),
+              ),
+              const Divider(),
+              LargeElevatedButton(
+                  onPressed: () => _save(controller, ref), label: "Save"),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _save(TextEditingController controller, WidgetRef ref) async {
+    var notesCollection = await ref.read(notesPod.future);
+    var jobsCollection = await ref.read(jobsPod.future);
+
+    var newNote = note;
+    newNote.text = controller.text;
+
+    if (newNote.id == null) {
+      newNote.owner = await ref.read(userId.future) as String;
+      var json = newNote.toJson();
+
+      var newNoteRm = await notesCollection.create(body: json);
+      await jobsCollection.update(jobId, body: {"notes+": newNoteRm.id});
+
+      ref.invalidate(notesPod);
+      ref.invalidate(jobByIdPod);
+    } else {
+      await notesCollection.update(note.id!, body: newNote.toJson());
+      ref.invalidate(notesPod);
+    }
+  }
 }
 
 class _AttachmentsView extends StatelessWidget {
   final Job job;
   const _AttachmentsView({
-    super.key,
     required this.job,
   });
 
@@ -208,6 +327,7 @@ class _AttachmentsView extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(border: Border.all()),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
                 child: ListView.builder(
@@ -228,8 +348,10 @@ class _AttachmentsView extends StatelessWidget {
                 ),
               ),
               const Divider(),
-              ElevatedButton(
-                  onPressed: () {}, child: const Text("Add Attachment"))
+              LargeElevatedButton(
+                onPressed: () {},
+                label: 'Add attachments',
+              )
             ],
           ),
         ),
@@ -238,10 +360,32 @@ class _AttachmentsView extends StatelessWidget {
   }
 }
 
+class LargeElevatedButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  final String label;
+
+  const LargeElevatedButton({
+    super.key,
+    required this.onPressed,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 48,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(label),
+      ),
+    );
+  }
+}
+
 class _MaterialsView extends StatelessWidget {
   final Job job;
   const _MaterialsView({
-    super.key,
     required this.job,
   });
 
@@ -304,7 +448,6 @@ class _PaymentView extends StatelessWidget {
   final Job job;
 
   const _PaymentView({
-    super.key,
     required this.job,
   });
 
@@ -357,7 +500,6 @@ class _ScheduleView extends StatelessWidget {
   final Job job;
 
   const _ScheduleView({
-    super.key,
     required this.job,
   });
 
@@ -401,7 +543,7 @@ class _ScheduleView extends StatelessWidget {
 class _DetailsEditDialog extends ConsumerStatefulWidget {
   final Job job;
 
-  const _DetailsEditDialog({super.key, required this.job});
+  const _DetailsEditDialog({required this.job});
 
   @override
   ConsumerState<_DetailsEditDialog> createState() => __DetailsEditDialogState();
@@ -612,7 +754,6 @@ class __DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
 
 class _DetailsView extends StatelessWidget {
   const _DetailsView({
-    super.key,
     required this.job,
   });
 
@@ -753,7 +894,7 @@ class _ViewJobContainer extends StatelessWidget {
 class _ScheduleEditDialog extends ConsumerStatefulWidget {
   final Job job;
 
-  const _ScheduleEditDialog({super.key, required this.job});
+  const _ScheduleEditDialog({required this.job});
 
   @override
   ConsumerState<_ScheduleEditDialog> createState() =>
@@ -895,7 +1036,7 @@ class _ScheduleEditDialogState extends ConsumerState<_ScheduleEditDialog> {
 class _PaymentEditDialog extends ConsumerStatefulWidget {
   final Job job;
 
-  const _PaymentEditDialog({super.key, required this.job});
+  const _PaymentEditDialog({required this.job});
 
   @override
   ConsumerState<_PaymentEditDialog> createState() => _PaymentEditDialogState();

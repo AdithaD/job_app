@@ -16,6 +16,11 @@ final authStorePod = FutureProvider((ref) async {
   return pb.authStore;
 });
 
+final userId = FutureProvider((ref) async {
+  var auth = await ref.watch(authStorePod.future);
+  return auth.model?.id;
+});
+
 Future<PocketBase> getPocketBase() async {
   if (pb != null) {
     return pb!;
@@ -42,17 +47,23 @@ final jobByIdPod = FutureProvider.family<Job, String>((ref, id) async {
   var pb = await ref.watch(pocketBasePod.future);
   var rm = await pb
       .collection('jobs')
-      .getOne(id, expand: "client,materials,attachments,tags");
+      .getOne(id, expand: "client,materials,attachments,tags,notes");
 
   return Job.fromRecord(rm);
 });
 
 final allJobsPod = FutureProvider((ref) async {
   var jobCollection = await ref.watch(jobsPod.future);
-  return jobCollection.getFullList(expand: "client,materials,attachments,tags");
+  return jobCollection.getFullList(
+      expand: "client,materials,attachments,tags,notes");
 });
 
 final tagsPod = FutureProvider((ref) async {
   var pb = await ref.watch(pocketBasePod.future);
   return pb.collection('tags');
+});
+
+final notesPod = FutureProvider((ref) async {
+  var pb = await ref.watch(pocketBasePod.future);
+  return pb.collection('notes');
 });
