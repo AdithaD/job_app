@@ -74,4 +74,20 @@ final materialsPod = FutureProvider((ref) async {
   return pb.collection('materials');
 });
 
-void requestErrorHandler(BuildContext context, Function function) {}
+Future<void> requestErrorHandler(
+    BuildContext context, Future Function() function,
+    {String? customMessage}) async {
+  await function().onError((error, stackTrace) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            customMessage ?? error.toString(),
+          ),
+        ),
+      );
+
+      Navigator.of(context).pop();
+    }
+  });
+}

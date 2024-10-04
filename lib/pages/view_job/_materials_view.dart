@@ -246,36 +246,29 @@ class _EditMaterialDialogState extends ConsumerState<_EditMaterialDialog> {
     newMaterial.quantity = int.parse(_quantityController.text);
     newMaterial.price = double.parse(_priceController.text);
 
-    try {
-      if (newMaterial.id == null) {
-        newMaterial.owner = await ref.read(userId.future) as String;
-        var json = newMaterial.toJson();
+    if (context.mounted) {
+      await requestErrorHandler(context,
+          customMessage:
+              "An error occurred while trying to save this material.",
+          () async {
+        if (newMaterial.id == null) {
+          newMaterial.owner = await ref.read(userId.future) as String;
+          var json = newMaterial.toJson();
 
-        var newMaterialRm = await materialCollection.create(body: json);
-        await jobsCollection
-            .update(widget.jobId, body: {"materials+": newMaterialRm.id});
+          var newMaterialRm = await materialCollection.create(body: json);
+          await jobsCollection
+              .update(widget.jobId, body: {"materials+": newMaterialRm.id});
 
-        ref.invalidate(materialsPod);
-        ref.invalidate(jobByIdPod);
-      } else {
-        await materialCollection.update(
-          newMaterial.id!,
-          body: newMaterial.toJson(),
-        );
-        ref.invalidate(materialsPod);
-      }
-    } catch (error) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              error.toString(),
-            ),
-          ),
-        );
-
-        Navigator.of(context).pop();
-      }
+          ref.invalidate(materialsPod);
+          ref.invalidate(jobByIdPod);
+        } else {
+          await materialCollection.update(
+            newMaterial.id!,
+            body: newMaterial.toJson(),
+          );
+          ref.invalidate(materialsPod);
+        }
+      });
     }
   }
 }
