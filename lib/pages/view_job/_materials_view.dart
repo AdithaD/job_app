@@ -61,8 +61,9 @@ class _MaterialsView extends ConsumerWidget {
                                     ),
                                     const SizedBox(width: 8.0),
                                     IconButton(
-                                      onPressed: () =>
-                                          _deleteMaterial(ref, material: mat),
+                                      onPressed: () => _deleteMaterial(
+                                          context, ref,
+                                          material: mat),
                                       icon:
                                           const Icon(Icons.remove_circle_sharp),
                                     ),
@@ -104,14 +105,29 @@ class _MaterialsView extends ConsumerWidget {
     );
   }
 
-  void _deleteMaterial(WidgetRef ref, {required JobMaterial material}) async {
+  void _deleteMaterial(BuildContext context, WidgetRef ref,
+      {required JobMaterial material}) async {
     var materialCollection = await ref.read(materialsPod.future);
     var jobsCollection = await ref.read(jobsPod.future);
 
-    await jobsCollection.update(job.id!, body: {"materials-": material.id});
+    try {
+      await jobsCollection.update(job.id!, body: {"materials-": material.id});
 
-    await materialCollection.delete(material.id!);
-    ref.invalidate(jobByIdPod(job.id!));
+      await materialCollection.delete(material.id!);
+      ref.invalidate(jobByIdPod(job.id!));
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              error.toString(),
+            ),
+          ),
+        );
+
+        Navigator.of(context).pop();
+      }
+    }
   }
 }
 
@@ -128,6 +144,8 @@ class _EditMaterialDialog extends ConsumerStatefulWidget {
 }
 
 class _EditMaterialDialogState extends ConsumerState<_EditMaterialDialog> {
+  final formKey = GlobalKey<FormState>();
+
   late TextEditingController _nameController;
   late TextEditingController _quantityController;
   late TextEditingController _priceController;
@@ -159,53 +177,67 @@ class _EditMaterialDialogState extends ConsumerState<_EditMaterialDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       child: Container(
-        height: 360,
         width: 400,
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text("Edit Material", style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 24),
-          TextField(
-            controller: _nameController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Name',
-              hintText: 'Enter the name of the material',
-            ),
-          ),
-          const SizedBox(height: 24),
-          TextField(
-            controller: _quantityController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Quantity',
-              hintText: 'Enter the quantity of the material',
-            ),
-          ),
-          const SizedBox(height: 24),
-          TextField(
-            controller: _priceController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Price',
-              hintText: 'Enter the price of the material',
-            ),
-          ),
-          const Spacer(),
-          const Divider(),
-          LargeElevatedButton(
-            onPressed: _saveMaterial,
-            label: 'Save Material',
-          ),
-        ]),
+        child: Form(
+          key: formKey,
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Edit Material",
+                    style: Theme.of(context).textTheme.labelLarge),
+                const SizedBox(height: 24),
+                TextFormField(
+                  controller: _nameController,
+                  validator: (value) =>
+                      value!.isEmpty ? "Name is required." : null,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Name',
+                    hintText: 'Enter the name of the material',
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextFormField(
+                  controller: _quantityController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) => validateInt(value, "Quantity", min: 1),
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Quantity',
+                    hintText: 'Enter the quantity of the material',
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextFormField(
+                  controller: _priceController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) => validateDouble(value, "Price", min: 0),
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Price',
+                    hintText: 'Enter the price of the material',
+                  ),
+                ),
+                const Divider(),
+                LargeElevatedButton(
+                  onPressed: () => _saveMaterial(context),
+                  label: 'Save Material',
+                ),
+              ]),
+        ),
       ),
     );
   }
 
-  void _saveMaterial() async {
+  void _saveMaterial(BuildContext context) async {
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
+
     var materialCollection = await ref.read(materialsPod.future);
     var jobsCollection = await ref.read(jobsPod.future);
 
@@ -214,20 +246,36 @@ class _EditMaterialDialogState extends ConsumerState<_EditMaterialDialog> {
     newMaterial.quantity = int.parse(_quantityController.text);
     newMaterial.price = double.parse(_priceController.text);
 
-    if (newMaterial.id == null) {
-      newMaterial.owner = await ref.read(userId.future) as String;
-      var json = newMaterial.toJson();
+    try {
+      if (newMaterial.id == null) {
+        newMaterial.owner = await ref.read(userId.future) as String;
+        var json = newMaterial.toJson();
 
-      var newMaterialRm = await materialCollection.create(body: json);
-      await jobsCollection
-          .update(widget.jobId, body: {"materials+": newMaterialRm.id});
+        var newMaterialRm = await materialCollection.create(body: json);
+        await jobsCollection
+            .update(widget.jobId, body: {"materials+": newMaterialRm.id});
 
-      ref.invalidate(materialsPod);
-      ref.invalidate(jobByIdPod);
-    } else {
-      await materialCollection.update(newMaterial.id!,
-          body: newMaterial.toJson());
-      ref.invalidate(materialsPod);
+        ref.invalidate(materialsPod);
+        ref.invalidate(jobByIdPod);
+      } else {
+        await materialCollection.update(
+          newMaterial.id!,
+          body: newMaterial.toJson(),
+        );
+        ref.invalidate(materialsPod);
+      }
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              error.toString(),
+            ),
+          ),
+        );
+
+        Navigator.of(context).pop();
+      }
     }
   }
 }

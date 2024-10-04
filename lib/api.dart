@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:job_app/models/job.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -72,3 +73,5 @@ final materialsPod = FutureProvider((ref) async {
   var pb = await ref.watch(pocketBasePod.future);
   return pb.collection('materials');
 });
+
+void requestErrorHandler(BuildContext context, Function function) {}

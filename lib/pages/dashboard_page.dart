@@ -51,11 +51,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   return result.when(
                     error: (object, stacktrace) =>
                         Text("Error ${object.toString()}"),
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
+                    loading: () => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
                     data: (jobRecordModels) {
                       var jobs = jobRecordModels
-                          .map((rm) => Job.fromRecord(rm))
+                          .map(
+                            (rm) => Job.fromRecord(rm),
+                          )
                           .toList();
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,13 +91,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                             Row(
                                               children: [
                                                 IconButton(
-                                                    onPressed: () {},
-                                                    icon: const Icon(
-                                                        Icons.filter_alt)),
+                                                  onPressed: () {},
+                                                  icon: const Icon(
+                                                      Icons.filter_alt),
+                                                ),
                                                 IconButton(
-                                                    onPressed: () {},
-                                                    icon:
-                                                        const Icon(Icons.sort))
+                                                  onPressed: () {},
+                                                  icon: const Icon(Icons.sort),
+                                                )
                                               ],
                                             ),
                                           ]),

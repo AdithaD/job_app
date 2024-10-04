@@ -30,3 +30,41 @@ const paymentStatusStringMap = {
   PaymentStatus.quoted: "Quoted",
   PaymentStatus.invoiced: "Invoiced",
 };
+String? validateInt(String? value, String fieldName, {int? min, int? max}) {
+  if (value == null || value.isEmpty) {
+    return "$fieldName is required.";
+  } else {
+    var num = int.tryParse(value);
+    if (num == null) {
+      return "$fieldName must be a number.";
+    } else {
+      if (min != null && num < min) {
+        return "$fieldName must be greater than $min.";
+      } else if (max != null && num > max) {
+        return "$fieldName must be less than $max.";
+      } else {
+        return null;
+      }
+    }
+  }
+}
+
+String? validateDouble(String? value, String fieldName,
+    {double? min, double? max}) {
+  if (value == null || value.isEmpty) {
+    return "$fieldName is required.";
+  } else {
+    var num = double.tryParse(value);
+    if (num == null) {
+      return "$fieldName must be a number.";
+    } else {
+      if (min != null && num < min) {
+        return "$fieldName must be greater than $min.";
+      } else if (max != null && num > max) {
+        return "$fieldName must be less than $max.";
+      } else {
+        return null;
+      }
+    }
+  }
+}
