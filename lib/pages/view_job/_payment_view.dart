@@ -32,9 +32,10 @@ class _PaymentView extends StatelessWidget {
               ),
               if (job.quotedPrice != null)
                 ViewField(
-                    fieldName: "Amount",
-                    child: Text("\$${job.quotedPrice!.toStringAsFixed(2)}")),
-              Expanded(child: Container()),
+                  fieldName: "Amount",
+                  child: Text("\$${job.quotedPrice!.toStringAsFixed(2)}"),
+                ),
+              Spacer(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -82,20 +83,26 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
     }
 
     var newJob = widget.job;
+
     newJob.paymentStatus = _newStatus;
     newJob.quotedPrice =
         double.tryParse(quotedPriceController.text) ?? widget.job.quotedPrice;
 
-    var jobs = await ref.read(jobsPod.future);
+    await requestErrorHandler(
+      context,
+      () async {
+        var jobs = await ref.read(jobsPod.future);
+        await jobs.update(
+          widget.job.id!,
+          body: newJob.toJson(),
+        );
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+    );
 
-    if (context.mounted) {
-      await requestErrorHandler(
-        context,
-        () => jobs.update(widget.job.id!, body: newJob.toJson()),
-      );
-
-      ref.invalidate(jobByIdPod(widget.job.id!));
-    }
+    ref.invalidate(jobByIdPod(widget.job.id!));
   }
 
   @override
@@ -160,9 +167,11 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
                     child: TextFormField(
                       controller: quotedPriceController,
                       keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'^[\d\.]+$'))
+                      ],
                       validator: (value) =>
-                          validateInt(value, "Amount", min: 0),
+                          validateDouble(value, "Amount", min: 0),
                       maxLines: 1,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -177,7 +186,6 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
               ElevatedButton(
                 onPressed: () {
                   _save(context);
-                  Navigator.of(context).pop();
                 },
                 child: const Text("Save"),
               ),
