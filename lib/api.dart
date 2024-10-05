@@ -59,6 +59,11 @@ final allJobsPod = FutureProvider((ref) async {
       expand: "client,materials,attachments,tags,notes");
 });
 
+final clientsPod = FutureProvider((ref) async {
+  var pb = await ref.watch(pocketBasePod.future);
+  return pb.collection('clients');
+});
+
 final tagsPod = FutureProvider((ref) async {
   var pb = await ref.watch(pocketBasePod.future);
   return pb.collection('tags');

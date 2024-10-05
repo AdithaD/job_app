@@ -111,7 +111,7 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                "Schedule",
+                "Payment Details",
                 style: Theme.of(context).textTheme.labelLarge,
               ),
               const SizedBox(height: 32),

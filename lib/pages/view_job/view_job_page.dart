@@ -93,9 +93,6 @@ class ViewJobPage extends ConsumerWidget {
                               ],
                             ),
                           ),
-                          const SizedBox(
-                            width: 48.0,
-                          ),
                           // Schedule, Quote, Attachments
                         ],
                       ),
