@@ -31,7 +31,7 @@ class _NotesView extends ConsumerWidget {
 
                         return ViewJobListCard(
                           onEdit: () => _editNote(context, note),
-                          onDelete: _deleteNote,
+                          onDelete: () => _deleteNote(context, ref, note),
                           updated: note.updated!,
                           child: Text(note.text),
                         );
@@ -53,7 +53,19 @@ class _NotesView extends ConsumerWidget {
         builder: (context) => _EditNoteDialog(note: note, jobId: job.id!));
   }
 
-  void _deleteNote() {}
+  void _deleteNote(BuildContext context, WidgetRef ref, Note note) async {
+    requestErrorHandler(context, () async {
+      var jobsCollection = await ref.read(jobsPod.future);
+
+      await jobsCollection.update(job.id!, body: {"notes-": note.id});
+
+      var notesCollection = await ref.read(notesPod.future);
+
+      await notesCollection.delete(note.id!);
+
+      ref.invalidate(jobByIdPod(job.id!));
+    });
+  }
 }
 
 class _EditNoteDialog extends ConsumerWidget {
