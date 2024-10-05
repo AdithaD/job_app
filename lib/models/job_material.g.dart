@@ -8,8 +8,8 @@ part of 'job_material.dart';
 
 JobMaterial _$JobMaterialFromJson(Map<String, dynamic> json) => JobMaterial(
       id: json['id'] as String?,
-      name: json['name'] as String,
       owner: json['owner'] as String?,
+      name: json['name'] as String,
       price: (json['price'] as num).toDouble(),
       quantity: (json['quantity'] as num).toInt(),
       saved: json['saved'] as bool? ?? false,

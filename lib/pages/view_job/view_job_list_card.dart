@@ -6,15 +6,15 @@ class ViewJobListCard extends StatelessWidget {
 
   final Widget child;
 
-  final VoidCallback onDelete;
-  final VoidCallback onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
   const ViewJobListCard({
     super.key,
     required this.child,
     required this.updated,
-    required this.onDelete,
-    required this.onEdit,
+    this.onDelete,
+    this.onEdit,
   });
 
   @override
@@ -35,8 +35,11 @@ class ViewJobListCard extends StatelessWidget {
                 Text("Updated: ${dateFormat.format(updated)}",
                     style: Theme.of(context).textTheme.labelMedium),
                 const Spacer(),
-                IconButton(onPressed: onEdit, icon: const Icon(Icons.edit)),
-                IconButton(onPressed: onDelete, icon: const Icon(Icons.delete))
+                if (onEdit != null)
+                  IconButton(onPressed: onEdit, icon: const Icon(Icons.edit)),
+                if (onDelete != null)
+                  IconButton(
+                      onPressed: onDelete, icon: const Icon(Icons.delete))
               ],
             ),
           ],

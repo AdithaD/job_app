@@ -1,3 +1,7 @@
+import 'dart:io';
+import 'package:http/http.dart' as http;
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,10 +11,13 @@ import 'package:job_app/components/payment_status_badge.dart';
 import 'package:job_app/components/strings.dart';
 import 'package:job_app/main.dart';
 import 'package:job_app/models/job.dart';
+import 'package:job_app/models/job_attachment.dart';
 import 'package:job_app/models/job_material.dart';
 import 'package:job_app/models/notes.dart';
 import 'package:job_app/models/tag.dart';
 import 'package:job_app/pages/view_job/view_job_list_card.dart';
+import 'package:open_file/open_file.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 part '_schedule_view.dart';
 part '_payment_view.dart';

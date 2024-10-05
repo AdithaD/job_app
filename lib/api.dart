@@ -79,6 +79,11 @@ final materialsPod = FutureProvider((ref) async {
   return pb.collection('materials');
 });
 
+final attachmentsPod = FutureProvider((ref) async {
+  var pb = await ref.watch(pocketBasePod.future);
+  return pb.collection('attachments');
+});
+
 Future<void> requestErrorHandler(
     BuildContext context, Future Function() function,
     {String? customMessage}) async {

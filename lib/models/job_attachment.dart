@@ -8,7 +8,11 @@ class JobAttachment {
   final String name;
   final String? file;
 
-  JobAttachment({this.id, required this.name, this.file});
+  final DateTime? created;
+  final DateTime? updated;
+
+  JobAttachment(
+      {this.id, required this.name, this.file, this.created, this.updated});
 
   factory JobAttachment.fromJson(Map<String, dynamic> json) =>
       _$JobAttachmentFromJson(json);
