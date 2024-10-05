@@ -24,7 +24,7 @@ class _AttachmentsView extends ConsumerWidget {
                     var att = job.attachments[index];
 
                     return ViewJobListCard(
-                        onDelete: () => _deleteAttachment(att),
+                        onDelete: () => _deleteAttachment(context, ref, att),
                         updated: att.updated!,
                         child: Row(
                           children: [
@@ -76,7 +76,20 @@ class _AttachmentsView extends ConsumerWidget {
     }
   }
 
-  _deleteAttachment(JobAttachment att) {}
+  void _deleteAttachment(
+      BuildContext context, WidgetRef ref, JobAttachment att) async {
+    requestErrorHandler(context, () async {
+      var jobsCollection = await ref.read(jobsPod.future);
+
+      await jobsCollection.update(job.id!, body: {"attachments-": att.id});
+
+      var attachmentsCollection = await ref.read(attachmentsPod.future);
+
+      await attachmentsCollection.delete(att.id!);
+
+      ref.invalidate(jobByIdPod(job.id!));
+    });
+  }
 }
 
 class _AddAttachmentDialog extends ConsumerStatefulWidget {
