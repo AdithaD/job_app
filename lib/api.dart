@@ -33,7 +33,7 @@ Future<PocketBase> getPocketBase() async {
       initial: prefs.getString('pb_auth'),
     );
 
-    pb = PocketBase('http://localhost:8090', authStore: store);
+    pb = PocketBase('https://dora-dev.pockethost.io', authStore: store);
 
     return pb!;
   }

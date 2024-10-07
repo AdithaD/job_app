@@ -69,12 +69,15 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
 
   var quotedPriceController = TextEditingController();
 
+  late Set<PaymentStatus> _selectedPaymentStatus;
+
   @override
   void initState() {
     super.initState();
     _newStatus = widget.job.paymentStatus;
 
     quotedPriceController.text = widget.job.quotedPrice?.toString() ?? "";
+    _selectedPaymentStatus = LinkedHashSet.from([widget.job.paymentStatus]);
   }
 
   void _save(BuildContext context) async {
@@ -110,7 +113,7 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
     return Dialog(
       child: Container(
         height: 400,
-        width: 400,
+        width: 550,
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
         child: Form(
           key: formKey,
@@ -123,34 +126,33 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
               ),
               const SizedBox(height: 32),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
                     "Payment Status",
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
-                  const SizedBox(height: 2),
-                  DropdownButtonFormField(
-                    value: _newStatus,
-                    isExpanded: true,
-                    padding: const EdgeInsets.all(2.0),
-                    validator: (value) =>
-                        value == null ? "Select a payment status" : null,
-                    items: PaymentStatus.values
-                        .map(
-                          (status) => DropdownMenuItem(
-                            value: status,
-                            child: Text(
-                                paymentStatusStringMap[status] ??
-                                    status.toString(),
-                                style: Theme.of(context).textTheme.bodyMedium),
+                  const SizedBox(height: 12),
+                  SegmentedButton(
+                      expandedInsets: EdgeInsets.all(2.0),
+                      segments: List.generate(
+                        PaymentStatus.values.length,
+                        (index) => ButtonSegment<PaymentStatus>(
+                          value: PaymentStatus.values[index],
+                          label: Text(
+                            paymentStatusStringMap[
+                                    PaymentStatus.values[index]] ??
+                                PaymentStatus.values[index].toString(),
                           ),
-                        )
-                        .toList(),
-                    onChanged: (status) => setState(() {
-                      _newStatus = status ?? widget.job.paymentStatus;
-                    }),
-                  ),
+                        ),
+                      ),
+                      selected: _selectedPaymentStatus,
+                      onSelectionChanged: (value) {
+                        setState(() {
+                          _newStatus = value.first;
+                          _selectedPaymentStatus = value;
+                        });
+                      }),
                 ],
               ),
               const SizedBox(height: 16),

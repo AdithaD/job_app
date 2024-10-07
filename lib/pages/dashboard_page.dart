@@ -29,6 +29,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       body: Row(
         children: [
           NavigationRail(
+            onDestinationSelected: (value) async {
+              if (value == 3) {
+                var pb = await ref.watch(authStorePod.future);
+                pb.clear();
+                ref.invalidate(authStorePod);
+              }
+            },
             destinations: const [
               NavigationRailDestination(
                 icon: Icon(Icons.dashboard),
@@ -41,6 +48,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               NavigationRailDestination(
                 icon: Icon(Icons.archive),
                 label: Text('Archive'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.logout),
+                label: Text('Logout'),
               ),
             ],
             selectedIndex: 0,
