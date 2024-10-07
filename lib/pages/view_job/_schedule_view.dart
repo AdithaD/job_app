@@ -1,6 +1,6 @@
 part of 'view_job_page.dart';
 
-class _ScheduleView extends StatelessWidget {
+class _ScheduleView extends ConsumerWidget {
   final Job job;
 
   const _ScheduleView({
@@ -8,7 +8,7 @@ class _ScheduleView extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Flexible(
       child: _ViewJobContainer(
         title: "Schedule",
@@ -16,6 +16,7 @@ class _ScheduleView extends StatelessWidget {
             context: context,
             builder: (context) => _ScheduleEditDialog(
                   job: job,
+                  ref: ref,
                 )),
         child: Container(
           padding: const EdgeInsets.all(16.0),
@@ -29,13 +30,15 @@ class _ScheduleView extends StatelessWidget {
               const SizedBox(
                 height: 16,
               ),
-              if (job.scheduledDate != null)
-                ViewField(
-                  fieldName: "Scheduled Date",
-                  child: Text(
-                    dateFormat.format(job.scheduledDate!),
-                  ),
+              ViewField(
+                fieldName: "Scheduled Date",
+                child: ViewFieldText(
+                  job.scheduledDate == null
+                      ? ""
+                      : dateFormat.format(job.scheduledDate!),
+                  defaultValue: "No scheduled date",
                 ),
+              ),
             ],
           ),
         ),
@@ -44,17 +47,17 @@ class _ScheduleView extends StatelessWidget {
   }
 }
 
-class _ScheduleEditDialog extends ConsumerStatefulWidget {
+class _ScheduleEditDialog extends StatefulWidget {
   final Job job;
+  final WidgetRef ref;
 
-  const _ScheduleEditDialog({required this.job});
+  const _ScheduleEditDialog({required this.job, required this.ref});
 
   @override
-  ConsumerState<_ScheduleEditDialog> createState() =>
-      _ScheduleEditDialogState();
+  State<_ScheduleEditDialog> createState() => _ScheduleEditDialogState();
 }
 
-class _ScheduleEditDialogState extends ConsumerState<_ScheduleEditDialog> {
+class _ScheduleEditDialogState extends State<_ScheduleEditDialog> {
   late JobStatus _newStatus;
   late DateTime? _newDate;
 
@@ -70,10 +73,10 @@ class _ScheduleEditDialogState extends ConsumerState<_ScheduleEditDialog> {
     newJob.jobStatus = _newStatus;
     newJob.scheduledDate = _newDate;
 
-    var jobs = await ref.read(jobsPod.future);
+    var jobs = await widget.ref.read(jobsPod.future);
 
     await jobs.update(widget.job.id!, body: newJob.toJson());
-    ref.invalidate(jobByIdPod(widget.job.id!));
+    widget.ref.invalidate(jobByIdPod(widget.job.id!));
   }
 
   @override
@@ -145,23 +148,25 @@ class _ScheduleEditDialogState extends ConsumerState<_ScheduleEditDialog> {
                               DateTime.now().add(const Duration(days: 365)),
                         );
 
-                        if (date != null) {
-                          final time = await showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay.now(),
-                          );
+                        if (context.mounted) {
+                          if (date != null) {
+                            final time = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                            );
 
-                          var dateTime =
-                              DateTime(date.year, date.month, date.day);
+                            var dateTime =
+                                DateTime(date.year, date.month, date.day);
 
-                          if (time != null) {
-                            dateTime = DateTime(date.year, date.month, date.day,
-                                time.hour, time.minute);
+                            if (time != null) {
+                              dateTime = DateTime(date.year, date.month,
+                                  date.day, time.hour, time.minute);
+                            }
+
+                            setState(() {
+                              _newDate = dateTime;
+                            });
                           }
-
-                          setState(() {
-                            _newDate = dateTime;
-                          });
                         }
                       },
                     ),

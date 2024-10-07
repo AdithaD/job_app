@@ -21,54 +21,83 @@ class _DetailsView extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(border: Border.all()),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ViewField(
-                fieldName: "Tags",
-                child: Row(
-                  children: job.tags
-                      .map(
-                        (tag) => Badge(
-                          backgroundColor: Colors.blue,
-                          label: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              tag.name,
-                              style: Theme.of(context).textTheme.labelLarge,
-                            ),
-                          ),
-                        ),
-                      )
-                      .expand((b) => [b, const SizedBox(width: 8)])
-                      .toList(),
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    ViewField(
+                      fieldName: "Job ID",
+                      child: Text("UD-${job.jobId.toString()}"),
+                    ),
+                    Spacer(),
+                    ViewField(
+                        fieldName: "Ref. ID",
+                        child: ViewFieldText(job.referenceId,
+                            defaultValue: "No Ref. ID")),
+                    Spacer()
+                  ],
                 ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: ViewField(
-                      fieldName: "Location",
-                      child: Text(job.location),
+                const SizedBox(
+                  height: 16,
+                ),
+                ViewField(
+                  fieldName: "Tags",
+                  child: Row(
+                    children: (job.tags.isEmpty)
+                        ? [
+                            Text("No tags",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(fontStyle: FontStyle.italic))
+                          ]
+                        : job.tags
+                            .map(
+                              (tag) => Badge(
+                                backgroundColor: Colors.blue,
+                                label: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    tag.name,
+                                    style:
+                                        Theme.of(context).textTheme.labelLarge,
+                                  ),
+                                ),
+                              ),
+                            )
+                            .expand((b) => [b, const SizedBox(width: 8)])
+                            .toList(),
+                  ),
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: ViewField(
+                        fieldName: "Location",
+                        child: ViewFieldText(job.location,
+                            defaultValue: "No location entered."),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                Expanded(
+                  child: ViewField(
+                    fieldName: "Description",
+                    child: SingleChildScrollView(
+                      child: ViewFieldText(job.description,
+                          defaultValue: "No description entered."),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              Expanded(
-                child: ViewField(
-                  fieldName: "Description",
-                  child: Text(job.description ?? ""),
                 ),
-              ),
-            ],
-          ),
+              ]),
         ),
       ),
     );
@@ -91,6 +120,8 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
   late TextEditingController _locationController;
   late TextEditingController _descriptionController;
 
+  late TextEditingController _referenceIdController;
+
   @override
   void initState() {
     super.initState();
@@ -98,6 +129,9 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
     _newTagController = TextEditingController();
     _locationController = TextEditingController();
     _descriptionController = TextEditingController();
+
+    _referenceIdController =
+        TextEditingController(text: widget.job.referenceId ?? "");
 
     _locationController.text = widget.job.location;
     _descriptionController.text = widget.job.description ?? "";
@@ -111,6 +145,8 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
     _newTagController.dispose();
     _locationController.dispose();
     _descriptionController.dispose();
+
+    _referenceIdController.dispose();
   }
 
   @override
@@ -123,6 +159,10 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Text(
+              "Edit Details",
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
             Expanded(
               child: Row(
                 children: [
@@ -131,14 +171,19 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "Details",
-                          style: Theme.of(context).textTheme.labelLarge,
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _referenceIdController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Reference ID",
+                          ),
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
                           controller: _locationController,
                           decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
                             labelText: "Location",
                           ),
                         ),
@@ -148,6 +193,7 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
                           maxLines: 8,
                           controller: _descriptionController,
                           decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
                             labelText: "Description",
                           ),
                         )
@@ -219,7 +265,8 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
             const SizedBox(
               height: 16,
             ),
-            ElevatedButton(onPressed: _saveData, child: const Text("Save"))
+            ElevatedButton(
+                onPressed: () => _saveData(context), child: const Text("Save"))
           ],
         ),
       ),
@@ -233,48 +280,51 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
   /// created. The job is then updated in the database. The job listing and job
   /// detail pages are also invalidated so that they will be reloaded with the new
   /// data when they are visited again.
-  void _saveData() async {
-    Navigator.of(context).pop();
-
+  void _saveData(BuildContext context) async {
     var jobs = ref.read(jobsPod).valueOrNull;
 
     var newJob = widget.job;
     newJob.description = _descriptionController.text;
     newJob.location = _locationController.text;
+    newJob.referenceId = _referenceIdController.text;
 
-    var tPod = ref.read(tagsPod.future);
-    var tagCollection = await tPod;
+    requestErrorHandler(context, () async {
+      var tPod = ref.read(tagsPod.future);
+      var tagCollection = await tPod;
 
-    var authStore = ref.read(authStorePod).valueOrNull;
+      var authStore = ref.read(authStorePod).valueOrNull;
 
-    var existingTags = await tagCollection.getFullList();
+      var existingTags = await tagCollection.getFullList();
 
-    var existingTagNames = existingTags.fold(<String, String>{}, (accum, rm) {
-      accum.putIfAbsent(rm.getStringValue("name"), () => rm.id);
-      return accum;
-    });
+      var existingTagNames = existingTags.fold(<String, String>{}, (accum, rm) {
+        accum.putIfAbsent(rm.getStringValue("name"), () => rm.id);
+        return accum;
+      });
 
-    var uid = authStore?.model.id;
+      var uid = authStore?.model.id;
 
-    var tags = <Tag>[];
-    for (var tagName in tagNames) {
-      if (existingTagNames.containsKey(tagName)) {
-        tags.add(Tag(name: tagName, id: existingTagNames[tagName], owner: uid));
-      } else {
-        var rm = await tagCollection
-            .create(body: <String, dynamic>{"name": tagName, "owner": uid});
-        tags.add(Tag.fromRecord(rm));
+      var tags = <Tag>[];
+      for (var tagName in tagNames) {
+        if (existingTagNames.containsKey(tagName)) {
+          tags.add(
+              Tag(name: tagName, id: existingTagNames[tagName], owner: uid));
+        } else {
+          var rm = await tagCollection
+              .create(body: <String, dynamic>{"name": tagName, "owner": uid});
+          tags.add(Tag.fromRecord(rm));
+        }
       }
-    }
 
-    newJob.tags = tags;
+      newJob.tags = tags;
 
-    if (jobs != null) {
-      var body = newJob.toJson();
-      await jobs.update(widget.job.id!, body: body);
-    }
-    ref.invalidate(jobsPod);
-    ref.invalidate(jobByIdPod(widget.job.id!));
+      if (jobs != null) {
+        var body = newJob.toJson();
+        await jobs.update(widget.job.id!, body: body);
+      }
+
+      ref.invalidate(jobByIdPod(widget.job.id!));
+      if (context.mounted) Navigator.of(context).pop();
+    });
   }
 
   void _addTag() {

@@ -24,7 +24,11 @@ class _ClientDetailsView extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text("No client details"),
+                  Text("No client details",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(fontStyle: FontStyle.italic)),
                 ],
               );
             } else {
@@ -63,7 +67,7 @@ class _ClientDetailsView extends StatelessWidget {
 class _ClientDetailsEditDialog extends ConsumerStatefulWidget {
   final Job job;
 
-  const _ClientDetailsEditDialog({super.key, required this.job});
+  const _ClientDetailsEditDialog({required this.job});
 
   @override
   ConsumerState<_ClientDetailsEditDialog> createState() =>

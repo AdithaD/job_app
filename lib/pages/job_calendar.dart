@@ -18,6 +18,7 @@ class JobCalendar extends StatefulWidget {
 }
 
 class _JobCalendarState extends State<JobCalendar> {
+  // ignore: unused_field
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
@@ -84,7 +85,6 @@ class _JobCalendarState extends State<JobCalendar> {
 
 class _JobEventList extends StatelessWidget {
   const _JobEventList({
-    super.key,
     required this.jobsByDate,
     required DateTime? selectedDay,
   }) : _selectedDay = selectedDay;

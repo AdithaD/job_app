@@ -65,10 +65,10 @@ class _AttachmentsView extends ConsumerWidget {
 
     var url = pb.files.getUrl(rm, att.file!);
 
-    if (context.mounted) {
-      try {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } catch (e) {
+    try {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
@@ -95,7 +95,7 @@ class _AttachmentsView extends ConsumerWidget {
 class _AddAttachmentDialog extends ConsumerStatefulWidget {
   final Job job;
 
-  const _AddAttachmentDialog({super.key, required this.job});
+  const _AddAttachmentDialog({required this.job});
 
   @override
   ConsumerState<_AddAttachmentDialog> createState() =>
@@ -107,7 +107,7 @@ class _AddAttachmentDialogState extends ConsumerState<_AddAttachmentDialog> {
 
   late TextEditingController _nameController;
 
-  File? _selectedFile = null;
+  File? _selectedFile;
 
   @override
   void initState() {

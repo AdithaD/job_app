@@ -135,8 +135,7 @@ class _EditMaterialDialog extends ConsumerStatefulWidget {
   final String jobId;
   final JobMaterial material;
 
-  const _EditMaterialDialog(
-      {super.key, required this.jobId, required this.material});
+  const _EditMaterialDialog({required this.jobId, required this.material});
 
   @override
   ConsumerState<_EditMaterialDialog> createState() =>

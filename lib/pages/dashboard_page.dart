@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_app/api.dart';
@@ -9,7 +7,6 @@ import 'package:job_app/main.dart';
 import 'package:job_app/models/job.dart';
 import 'package:job_app/pages/job_calendar.dart';
 import 'package:job_app/pages/view_job/view_job_page.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key, required this.title});
@@ -201,7 +198,30 @@ class JobCard extends ConsumerWidget {
             padding: const EdgeInsets.all(16.0),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text("#${job.jobId}"),
+              Row(
+                children: [
+                  Text(
+                    "UD-${job.jobId}",
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelMedium!
+                        .copyWith(color: Colors.blueGrey.shade400),
+                  ),
+                  if (job.referenceId != null) ...[
+                    Spacer(),
+                    Text(
+                      "${job.referenceId}",
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelMedium!
+                          .copyWith(color: Colors.blueGrey.shade400),
+                    )
+                  ]
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
               Expanded(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -299,7 +319,7 @@ class JobCard extends ConsumerWidget {
 }
 
 class _AddJobDialog extends ConsumerStatefulWidget {
-  const _AddJobDialog({super.key});
+  const _AddJobDialog();
 
   @override
   ConsumerState<_AddJobDialog> createState() => _AddJobDialogState();
@@ -308,7 +328,7 @@ class _AddJobDialog extends ConsumerStatefulWidget {
 class _AddJobDialogState extends ConsumerState<_AddJobDialog> {
   final _formKey = GlobalKey<FormState>();
 
-  late final _nameController;
+  late TextEditingController _nameController;
 
   @override
   void initState() {

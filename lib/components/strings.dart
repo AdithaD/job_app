@@ -68,3 +68,32 @@ String? validateDouble(String? value, String fieldName,
     }
   }
 }
+
+String getStringIfNotEmptyOrNull(String? value, String defaultValue) {
+  if (value == null || value.isEmpty) {
+    return defaultValue;
+  } else {
+    return value;
+  }
+}
+
+class ViewFieldText extends StatelessWidget {
+  final String? value;
+  final String defaultValue;
+
+  const ViewFieldText(this.value, {super.key, required this.defaultValue});
+
+  @override
+  Widget build(BuildContext context) {
+    final val = value;
+    if (val == null || val.isEmpty) {
+      return Text(defaultValue,
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium!
+              .copyWith(fontStyle: FontStyle.italic));
+    } else {
+      return Text(val, style: Theme.of(context).textTheme.bodyMedium);
+    }
+  }
+}

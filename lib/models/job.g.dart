@@ -15,6 +15,7 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
           : Client.fromJson(
               readExpandedClientJSON(json, 'client') as Map<String, dynamic>),
       location: json['location'] as String,
+      referenceId: json['referenceId'] as String?,
       description: json['description'] as String?,
       scheduledDate: readDateTimeJSON(json, 'scheduledDate') == null
           ? null
@@ -45,6 +46,7 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
 Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'id': instance.id,
       'jobId': instance.jobId,
+      'referenceId': instance.referenceId,
       'title': instance.title,
       'description': instance.description,
       'client': clientIdGetter(instance.client),
