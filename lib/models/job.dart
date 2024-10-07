@@ -22,16 +22,18 @@ enum PaymentStatus { unquoted, quoted, invoiced, paid }
 class Job {
   String? id;
   int jobId;
+  String? referenceId;
   String title;
   String? description;
 
   @JsonKey(readValue: readExpandedClientJSON, toJson: clientIdGetter)
-  Client client;
+  Client? client;
   String location;
 
   @JsonKey(readValue: readExpandedTagsJSON, toJson: tagIdsGetter)
   List<Tag> tags;
 
+  @JsonKey(readValue: readDateTimeJSON)
   DateTime? scheduledDate;
   JobStatus jobStatus;
 
@@ -59,6 +61,7 @@ class Job {
       required this.title,
       required this.client,
       required this.location,
+      this.referenceId,
       this.description,
       this.scheduledDate,
       this.jobStatus = JobStatus.unscheduled,
@@ -73,7 +76,7 @@ class Job {
         notes = notes ?? [];
 }
 
-String? clientIdGetter(Client client) => client.id;
+String? clientIdGetter(Client? client) => client?.id;
 
 List<String> tagIdsGetter(List<Tag> tags) {
   return tags.map((tag) => tag.id ?? "").toList();
@@ -109,4 +112,18 @@ Object? readExpandedTagsJSON(Map<dynamic, dynamic> json, key) {
 
 Object? readExpandedNotesJSON(Map<dynamic, dynamic> json, key) {
   return json["expand"]["notes"];
+}
+
+Object? readDateTimeJSON(Map<dynamic, dynamic> json, key) {
+  if (json[key] != null) {
+    if (json[key] is String) {
+      var value = json[key] as String;
+
+      if (value.isNotEmpty) {
+        return json[key];
+      }
+    }
+  }
+
+  return null;
 }

@@ -10,13 +10,15 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
       id: json['id'] as String? ?? "",
       jobId: (json['jobId'] as num).toInt(),
       title: json['title'] as String,
-      client: Client.fromJson(
-          readExpandedClientJSON(json, 'client') as Map<String, dynamic>),
+      client: readExpandedClientJSON(json, 'client') == null
+          ? null
+          : Client.fromJson(
+              readExpandedClientJSON(json, 'client') as Map<String, dynamic>),
       location: json['location'] as String,
       description: json['description'] as String?,
-      scheduledDate: json['scheduledDate'] == null
+      scheduledDate: readDateTimeJSON(json, 'scheduledDate') == null
           ? null
-          : DateTime.parse(json['scheduledDate'] as String),
+          : DateTime.parse(readDateTimeJSON(json, 'scheduledDate') as String),
       jobStatus: $enumDecodeNullable(_$JobStatusEnumMap, json['jobStatus']) ??
           JobStatus.unscheduled,
       paymentStatus:

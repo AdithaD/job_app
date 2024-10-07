@@ -19,29 +19,41 @@ class _ClientDetailsView extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(border: Border.all()),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ViewField(
-                fieldName: "Name",
-                child: Text(job.client.name),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              ViewField(
-                fieldName: "Email",
-                child: Text(job.client.email ?? ""),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              ViewField(
-                fieldName: "Phone",
-                child: Text(job.client.phone ?? ""),
-              ),
-            ],
-          ),
+          child: Builder(builder: (context) {
+            if (job.client == null) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text("No client details"),
+                ],
+              );
+            } else {
+              var client = job.client!;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ViewField(
+                    fieldName: "Name",
+                    child: Text(client.name),
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  ViewField(
+                    fieldName: "Email",
+                    child: Text(client.email ?? ""),
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  ViewField(
+                    fieldName: "Phone",
+                    child: Text(client.phone ?? ""),
+                  ),
+                ],
+              );
+            }
+          }),
         ),
       ),
     );
@@ -71,13 +83,13 @@ class _ClientDetailsEditDialogState
     super.initState();
 
     _nameController = TextEditingController(
-      text: widget.job.client.name,
+      text: widget.job.client?.name ?? "",
     );
     _emailController = TextEditingController(
-      text: widget.job.client.email,
+      text: widget.job.client?.email ?? "",
     );
     _phoneController = TextEditingController(
-      text: widget.job.client.phone,
+      text: widget.job.client?.phone ?? "",
     );
   }
 
@@ -148,7 +160,7 @@ class _ClientDetailsEditDialogState
   }
 
   void _saveClientDetails(BuildContext context) async {
-    var newClient = widget.job.client;
+    var newClient = widget.job.client ?? Client(name: "New Client");
     if (_formKey.currentState!.validate()) {
       newClient.name = _nameController.text;
       newClient.email = _emailController.text;
@@ -158,7 +170,15 @@ class _ClientDetailsEditDialogState
         context,
         () async {
           var clients = await ref.read(clientsPod.future);
-          clients.update(widget.job.client.id!, body: newClient.toJson());
+
+          if (newClient.id == null) {
+            var rm = await clients.create(body: newClient.toJson());
+
+            var jobs = await ref.read(jobsPod.future);
+            await jobs.update(widget.job.id!, body: {"client": rm.id});
+          } else {
+            await clients.update(newClient.id!, body: newClient.toJson());
+          }
         },
         customMessage: "Error updating client",
       );

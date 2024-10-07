@@ -10,13 +10,13 @@ import 'package:job_app/components/job_status_badge.dart';
 import 'package:job_app/components/payment_status_badge.dart';
 import 'package:job_app/components/strings.dart';
 import 'package:job_app/main.dart';
+import 'package:job_app/models/client.dart';
 import 'package:job_app/models/job.dart';
 import 'package:job_app/models/job_attachment.dart';
 import 'package:job_app/models/job_material.dart';
 import 'package:job_app/models/notes.dart';
 import 'package:job_app/models/tag.dart';
 import 'package:job_app/pages/view_job/view_job_list_card.dart';
-import 'package:open_file/open_file.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 part '_schedule_view.dart';
@@ -54,7 +54,7 @@ class ViewJobPage extends ConsumerWidget {
             ),
             actions: [
               IconButton(
-                onPressed: () {},
+                onPressed: () => _deleteJob(context, ref),
                 icon: const Icon(Icons.delete),
               ),
             ],
@@ -130,6 +130,39 @@ class ViewJobPage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<dynamic> _deleteJob(BuildContext context, WidgetRef ref) async {
+    var response = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirm deletion.'),
+          content: const Text('Do you really want to delete this job?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Cancel'),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'OK'),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    if (response == 'OK') {
+      if (context.mounted) {
+        await requestErrorHandler(context, () async {
+          var jobsCollection = await ref.read(jobsPod.future);
+          await jobsCollection.delete(jobId);
+          ref.invalidate(allJobsPod);
+
+          if (context.mounted) Navigator.of(context).pop();
+        });
+      }
+    }
   }
 }
 
