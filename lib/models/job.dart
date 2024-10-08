@@ -39,6 +39,7 @@ class Job {
 
   PaymentStatus paymentStatus;
   double? quotedPrice;
+  double receivedAmount;
 
   @JsonKey(readValue: readExpandedMaterialsJSON, toJson: materialIdsGetter)
   List<JobMaterial> materials;
@@ -66,6 +67,7 @@ class Job {
       this.scheduledDate,
       this.jobStatus = JobStatus.unscheduled,
       this.paymentStatus = PaymentStatus.unquoted,
+      this.receivedAmount = 0.0,
       this.quotedPrice,
       this.tags = const [],
       List<JobMaterial>? materials,

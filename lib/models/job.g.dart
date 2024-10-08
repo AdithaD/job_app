@@ -25,6 +25,7 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
       paymentStatus:
           $enumDecodeNullable(_$PaymentStatusEnumMap, json['paymentStatus']) ??
               PaymentStatus.unquoted,
+      receivedAmount: (json['receivedAmount'] as num?)?.toDouble() ?? 0.0,
       quotedPrice: (json['quotedPrice'] as num?)?.toDouble(),
       tags: (readExpandedTagsJSON(json, 'tags') as List<dynamic>?)
               ?.map((e) => Tag.fromJson(e as Map<String, dynamic>))
@@ -56,6 +57,7 @@ Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'jobStatus': _$JobStatusEnumMap[instance.jobStatus]!,
       'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
       'quotedPrice': instance.quotedPrice,
+      'receivedAmount': instance.receivedAmount,
       'materials': materialIdsGetter(instance.materials),
       'notes': noteIdsGetter(instance.notes),
       'attachments': attachmentIdsGetter(instance.attachments),

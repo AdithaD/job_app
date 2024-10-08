@@ -32,9 +32,18 @@ class _PaymentView extends StatelessWidget {
               ),
               if (job.quotedPrice != null)
                 ViewField(
-                  fieldName: "Amount",
+                  fieldName: "Quoted amount",
                   child: Text("\$${job.quotedPrice!.toStringAsFixed(2)}"),
                 ),
+              const SizedBox(
+                height: 16,
+              ),
+              ViewField(
+                fieldName: "Received amount",
+                child: Text(
+                  "\$${job.receivedAmount.toStringAsFixed(2)}",
+                ),
+              ),
               Spacer(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -71,11 +80,15 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
 
   late Set<PaymentStatus> _selectedPaymentStatus;
 
+  late TextEditingController receivedAmountController =
+      TextEditingController(text: widget.job.receivedAmount.toString());
+
   @override
   void initState() {
     super.initState();
     _newStatus = widget.job.paymentStatus;
 
+    receivedAmountController.text = widget.job.receivedAmount.toString();
     quotedPriceController.text = widget.job.quotedPrice?.toString() ?? "";
     _selectedPaymentStatus = LinkedHashSet.from([widget.job.paymentStatus]);
   }
@@ -90,6 +103,7 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
     newJob.paymentStatus = _newStatus;
     newJob.quotedPrice =
         double.tryParse(quotedPriceController.text) ?? widget.job.quotedPrice;
+    newJob.receivedAmount = double.parse(receivedAmountController.text);
 
     await requestErrorHandler(
       context,
@@ -112,7 +126,7 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       child: Container(
-        height: 400,
+        height: 450,
         width: 550,
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
         child: Form(
@@ -173,7 +187,34 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
                         FilteringTextInputFormatter.allow(RegExp(r'^[\d\.]+$'))
                       ],
                       validator: (value) =>
-                          validateDouble(value, "Amount", min: 0),
+                          validateDouble(value, "Quoted amount", min: 0),
+                      maxLines: 1,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    "Received Amount",
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: 60,
+                    child: TextFormField(
+                      controller: receivedAmountController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'^[\d\.]+$'))
+                      ],
+                      validator: (value) =>
+                          validateDouble(value, "Received amount", min: 0),
                       maxLines: 1,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -185,12 +226,12 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
               Expanded(
                 child: Container(),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  _save(context);
-                },
-                child: const Text("Save"),
-              ),
+              Divider(),
+              LargeElevatedButton(
+                  onPressed: () {
+                    _save(context);
+                  },
+                  label: "Save"),
             ],
           ),
         ),
