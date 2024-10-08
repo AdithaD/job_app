@@ -3,9 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_app/api.dart';
 import 'package:job_app/components/job_status_badge.dart';
 import 'package:job_app/components/payment_status_badge.dart';
+import 'package:job_app/components/tag_list.dart';
 import 'package:job_app/main.dart';
 import 'package:job_app/models/job.dart';
+import 'package:job_app/models/tag.dart';
+import 'package:job_app/models/tag_colors.dart';
 import 'package:job_app/pages/job_calendar.dart';
+import 'package:job_app/pages/settings_page.dart';
 import 'package:job_app/pages/view_job/view_job_page.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
@@ -25,34 +29,55 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return Scaffold(
       body: Row(
         children: [
-          NavigationRail(
-            onDestinationSelected: (value) async {
-              if (value == 3) {
-                var pb = await ref.watch(authStorePod.future);
-                pb.clear();
-                ref.invalidate(authStorePod);
-              }
-            },
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(Icons.dashboard),
-                label: Text('Dashboard'),
+          Column(
+            children: [
+              Expanded(
+                child: NavigationRail(
+                  onDestinationSelected: (value) async {
+                    if (value == 3) {
+                      var pb = await ref.watch(authStorePod.future);
+                      pb.clear();
+                      ref.invalidate(authStorePod);
+                    }
+                  },
+                  destinations: const [
+                    NavigationRailDestination(
+                      icon: Icon(Icons.dashboard),
+                      label: Text('Dashboard'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.person),
+                      label: Text('Clients'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.archive),
+                      label: Text('Archive'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.logout),
+                      label: Text('Logout'),
+                    ),
+                  ],
+                  selectedIndex: 0,
+                  labelType: NavigationRailLabelType.all,
+                ),
               ),
-              NavigationRailDestination(
-                icon: Icon(Icons.person),
-                label: Text('Clients'),
+              Spacer(),
+              Divider(),
+              IconButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => SettingsPage(),
+                  ),
+                ),
+                icon: Icon(Icons.settings),
+                tooltip: "Settings",
+                padding: EdgeInsets.all(8.0),
               ),
-              NavigationRailDestination(
-                icon: Icon(Icons.archive),
-                label: Text('Archive'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.logout),
-                label: Text('Logout'),
-              ),
+              SizedBox(
+                height: 16,
+              )
             ],
-            selectedIndex: 0,
-            labelType: NavigationRailLabelType.all,
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
@@ -236,17 +261,8 @@ class JobCard extends ConsumerWidget {
                           const SizedBox(
                             height: 4,
                           ),
-                          Row(
-                            children: job.tags
-                                .map((tag) => Badge(
-                                      backgroundColor: Colors.blue,
-                                      textColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 2),
-                                      label: Text(tag.name),
-                                    ))
-                                .expand((b) => [b, const SizedBox(width: 8)])
-                                .toList(),
+                          TagList(
+                            tags: job.tags,
                           ),
                           Expanded(
                             child: Container(),

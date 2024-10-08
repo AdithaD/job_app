@@ -10,6 +10,7 @@ import 'package:job_app/api.dart';
 import 'package:job_app/components/job_status_badge.dart';
 import 'package:job_app/components/payment_status_badge.dart';
 import 'package:job_app/components/strings.dart';
+import 'package:job_app/components/tag_list.dart';
 import 'package:job_app/main.dart';
 import 'package:job_app/models/client.dart';
 import 'package:job_app/models/job.dart';
@@ -17,6 +18,7 @@ import 'package:job_app/models/job_attachment.dart';
 import 'package:job_app/models/job_material.dart';
 import 'package:job_app/models/notes.dart';
 import 'package:job_app/models/tag.dart';
+import 'package:job_app/models/tag_colors.dart';
 import 'package:job_app/pages/view_job/view_job_list_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 

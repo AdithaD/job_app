@@ -84,6 +84,16 @@ final attachmentsPod = FutureProvider((ref) async {
   return pb.collection('attachments');
 });
 
+final tagColorsPod = FutureProvider((ref) async {
+  var pb = await ref.watch(pocketBasePod.future);
+  return pb.collection('tag_colors');
+});
+
+final allTagColorsPod = FutureProvider((ref) async {
+  var pod = await ref.watch(tagColorsPod.future);
+  return pod.getFullList();
+});
+
 Future<void> requestErrorHandler(
     BuildContext context, Future Function() function,
     {String? customMessage}) async {

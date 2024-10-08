@@ -223,15 +223,14 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
                   ),
                 ],
               ),
-              Expanded(
-                child: Container(),
-              ),
+              Spacer(),
               Divider(),
               LargeElevatedButton(
-                  onPressed: () {
-                    _save(context);
-                  },
-                  label: "Save"),
+                onPressed: () {
+                  _save(context);
+                },
+                label: "Save",
+              ),
             ],
           ),
         ),

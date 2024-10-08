@@ -43,32 +43,15 @@ class _DetailsView extends StatelessWidget {
                 ),
                 ViewField(
                   fieldName: "Tags",
-                  child: Row(
-                    children: (job.tags.isEmpty)
-                        ? [
-                            Text("No tags",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(fontStyle: FontStyle.italic))
-                          ]
-                        : job.tags
-                            .map(
-                              (tag) => Badge(
-                                backgroundColor: Colors.blue,
-                                label: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    tag.name,
-                                    style:
-                                        Theme.of(context).textTheme.labelLarge,
-                                  ),
-                                ),
-                              ),
-                            )
-                            .expand((b) => [b, const SizedBox(width: 8)])
-                            .toList(),
-                  ),
+                  child: (job.tags.isEmpty)
+                      ? Row(children: [
+                          Text("No tags",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(fontStyle: FontStyle.italic))
+                        ])
+                      : TagList(tags: job.tags),
                 ),
                 const SizedBox(
                   height: 16,
