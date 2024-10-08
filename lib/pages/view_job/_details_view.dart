@@ -122,9 +122,13 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
 
   late TextEditingController _referenceIdController;
 
+  late TextEditingController _titleController;
+
   @override
   void initState() {
     super.initState();
+
+    _titleController = TextEditingController(text: widget.job.title);
 
     _newTagController = TextEditingController();
     _locationController = TextEditingController();
@@ -163,6 +167,9 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
               "Edit Details",
               style: Theme.of(context).textTheme.labelLarge,
             ),
+            SizedBox(
+              height: 8,
+            ),
             Expanded(
               child: Row(
                 children: [
@@ -171,6 +178,14 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _titleController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Title",
+                          ),
+                        ),
                         const SizedBox(height: 16),
                         TextFormField(
                           controller: _referenceIdController,
@@ -284,6 +299,8 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
     var jobs = ref.read(jobsPod).valueOrNull;
 
     var newJob = widget.job;
+
+    newJob.title = _titleController.text;
     newJob.description = _descriptionController.text;
     newJob.location = _locationController.text;
     newJob.referenceId = _referenceIdController.text;
