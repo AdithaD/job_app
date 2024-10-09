@@ -25,7 +25,7 @@ class TagList extends ConsumerWidget {
     return Row(
       children: tags
           .map(
-            (tag) => _TagWidget(
+            (tag) => TagWidget(
               tag: tag,
               color: _getColor(tag, tagColors),
             ),
@@ -51,10 +51,10 @@ class TagList extends ConsumerWidget {
   }
 }
 
-class _TagWidget extends StatelessWidget {
+class TagWidget extends StatelessWidget {
   final Tag tag;
   final Color color;
-  const _TagWidget({
+  const TagWidget({
     super.key,
     required this.tag,
     required this.color,

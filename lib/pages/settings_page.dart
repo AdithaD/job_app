@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_app/api.dart';
+import 'package:job_app/components/tag_list.dart';
+import 'package:job_app/models/tag.dart';
 import 'package:job_app/models/tag_colors.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -94,7 +96,7 @@ class _TagColorSettingsState extends ConsumerState<TagColorSettings> {
         SizedBox(height: 8),
         Expanded(
           child: Container(
-            padding: EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(16.0),
             decoration: BoxDecoration(
               border: Border.all(),
             ),
@@ -103,60 +105,73 @@ class _TagColorSettingsState extends ConsumerState<TagColorSettings> {
               itemBuilder: (context, index) {
                 var tagColor = tagColors[index];
 
-                return Row(
+                return Column(
                   children: [
-                    Text(
-                      tagColor.name,
-                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    Row(
+                      children: [
+                        TagWidget(
+                          tag: Tag(name: tagColor.name),
                           color: Color(tagColor.color),
-                          fontWeight: FontWeight.bold),
+                        ),
+                        Spacer(),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () => deleteTag(context, tagColor),
+                        ),
+                      ],
                     ),
-                    Spacer(),
-                    IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () => deleteTag(context, tagColor),
-                    ),
+                    Divider()
                   ],
                 );
               },
             ),
           ),
         ),
-        Divider(),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+        const SizedBox(height: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(
-              width: 200,
-              child: TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: "Tag Name",
-                ),
-              ),
+            Text(
+              "Set Tag",
+              style: Theme.of(context).textTheme.titleSmall,
             ),
-            SizedBox(
-              width: 8,
-            ),
-            Expanded(
-              child: GestureDetector(
-                onTap: _pickColour,
-                child: Container(
-                  padding: EdgeInsets.all(4.0),
-                  decoration: BoxDecoration(
-                    color: _selectedColor,
-                    border: Border.all(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                SizedBox(
+                  width: 200,
+                  child: TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: "Tag Name",
+                    ),
                   ),
-                  height: 40,
                 ),
-              ),
-            ),
-            SizedBox(
-              width: 8,
-            ),
-            ElevatedButton(
-              onPressed: () => addTag(context),
-              child: Text("Add"),
+                SizedBox(
+                  width: 16,
+                ),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: _pickColour,
+                    child: Container(
+                      padding: EdgeInsets.all(4.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4.0),
+                        color: _selectedColor,
+                        border: Border.all(),
+                      ),
+                      height: 30,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 16,
+                ),
+                ElevatedButton(
+                  onPressed: () => addTag(context),
+                  child: Text("Add"),
+                ),
+              ],
             ),
           ],
         )

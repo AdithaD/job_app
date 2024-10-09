@@ -6,7 +6,7 @@ part 'tag.g.dart';
 @JsonSerializable()
 class Tag {
   String? id;
-  String owner;
+  String? owner;
   String name;
 
   factory Tag.fromRecord(RecordModel record) => Tag.fromJson(record.toJson());
@@ -15,5 +15,5 @@ class Tag {
 
   Map<String, dynamic> toJson() => _$TagToJson(this);
 
-  Tag({required this.id, required this.owner, required this.name});
+  Tag({this.id, this.owner, required this.name});
 }

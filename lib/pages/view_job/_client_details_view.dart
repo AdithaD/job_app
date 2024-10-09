@@ -176,6 +176,7 @@ class _ClientDetailsEditDialogState
           var clients = await ref.read(clientsPod.future);
 
           if (newClient.id == null) {
+            newClient.owner = await ref.read(userId.future) as String;
             var rm = await clients.create(body: newClient.toJson());
 
             var jobs = await ref.read(jobsPod.future);

@@ -5,6 +5,7 @@ part 'client.g.dart';
 @JsonSerializable()
 class Client {
   final String? id;
+  String? owner;
   String name;
   String? email;
   String? phone;
@@ -13,5 +14,5 @@ class Client {
 
   Map<String, dynamic> toJson() => _$ClientToJson(this);
 
-  Client({this.id, required this.name, this.email, this.phone});
+  Client({this.id, required this.name, this.email, this.phone, this.owner});
 }

@@ -6,8 +6,6 @@ import 'package:job_app/components/payment_status_badge.dart';
 import 'package:job_app/components/tag_list.dart';
 import 'package:job_app/main.dart';
 import 'package:job_app/models/job.dart';
-import 'package:job_app/models/tag.dart';
-import 'package:job_app/models/tag_colors.dart';
 import 'package:job_app/pages/job_calendar.dart';
 import 'package:job_app/pages/settings_page.dart';
 import 'package:job_app/pages/view_job/view_job_page.dart';
@@ -259,7 +257,7 @@ class JobCard extends ConsumerWidget {
                           Text(job.title,
                               style: Theme.of(context).textTheme.titleLarge),
                           const SizedBox(
-                            height: 4,
+                            height: 12,
                           ),
                           TagList(
                             tags: job.tags,
@@ -309,14 +307,6 @@ class JobCard extends ConsumerWidget {
                             const SizedBox(height: 8),
                             PaymentStatusBadge(status: job.paymentStatus),
                             Expanded(child: Container()),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                IconButton(
-                                    onPressed: () {},
-                                    icon: const Icon(Icons.edit))
-                              ],
-                            ),
                           ],
                         ))
                   ],

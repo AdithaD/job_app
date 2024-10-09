@@ -21,7 +21,7 @@ const paymentStatusColorMap = {
   PaymentStatus.paid: Colors.green,
   PaymentStatus.unquoted: Colors.grey,
   PaymentStatus.quoted: Colors.blue,
-  PaymentStatus.invoiced: Colors.yellow,
+  PaymentStatus.invoiced: Colors.deepOrange,
 };
 
 const paymentStatusStringMap = {
