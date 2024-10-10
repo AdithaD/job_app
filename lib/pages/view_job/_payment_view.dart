@@ -49,7 +49,12 @@ class _PaymentView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                      onPressed: () {}, child: const Text("Generate Quote")),
+                      onPressed: () => InvoicePdf(
+                            job: job,
+                            businessDetails: testBusinessDetails,
+                            paymentDetails: testPaymentDetails,
+                          ).generateQuote(),
+                      child: const Text("Generate Quote")),
                   ElevatedButton(
                       onPressed: () {}, child: const Text("Generate Invoice"))
                 ],
@@ -226,9 +231,7 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
               Spacer(),
               Divider(),
               LargeElevatedButton(
-                onPressed: () {
-                  _save(context);
-                },
+                onPressed: () => _save(context),
                 label: "Save",
               ),
             ],

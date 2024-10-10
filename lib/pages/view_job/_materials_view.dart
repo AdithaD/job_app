@@ -269,5 +269,9 @@ class _EditMaterialDialogState extends ConsumerState<_EditMaterialDialog> {
         }
       });
     }
+
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
   }
 }

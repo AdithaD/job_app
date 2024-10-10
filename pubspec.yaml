@@ -48,6 +48,8 @@ dependencies:
   open_file: ^3.5.8
   url_launcher: ^6.3.0
   flutter_colorpicker: ^1.1.0
+  pdf: ^3.11.1
+  path_provider: ^2.1.4
 
 dev_dependencies:
   flutter_test:
