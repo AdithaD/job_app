@@ -22,6 +22,7 @@ class _SettingsPageState extends State<SettingsPage> {
         appBar: AppBar(
           title: const Text('Settings'),
           bottom: TabBar(tabs: [
+            Tab(icon: Icon(Icons.person), child: const Text("Details")),
             Tab(icon: Icon(Icons.color_lens), child: const Text("Colors")),
           ]),
         ),
@@ -29,6 +30,17 @@ class _SettingsPageState extends State<SettingsPage> {
           padding: const EdgeInsets.all(32.0),
           child: TabBarView(
             children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: BusinessDetailsSettings(),
+                  ),
+                  VerticalDivider(),
+                  Flexible(
+                    child: PaymentDetailsSettings(),
+                  ),
+                ],
+              ),
               Row(
                 children: [
                   Flexible(
@@ -49,6 +61,34 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
     );
+  }
+}
+
+class PaymentDetailsSettings extends StatelessWidget {
+  const PaymentDetailsSettings({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+class BusinessDetailsSettings extends StatefulWidget {
+  const BusinessDetailsSettings({
+    super.key,
+  });
+
+  @override
+  State<BusinessDetailsSettings> createState() =>
+      _BusinessDetailsSettingsState();
+}
+
+class _BusinessDetailsSettingsState extends State<BusinessDetailsSettings> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }
 
