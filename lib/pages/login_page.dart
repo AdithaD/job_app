@@ -30,7 +30,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     _passwordController.dispose();
   }
 
-  Future<void> _login() async {
+  Future<void> _login(BuildContext context) async {
     final username = _usernameController.text;
     final password = _passwordController.text;
 
@@ -38,8 +38,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     if (pbPod.hasValue) {
       final pb = pbPod.value!;
-      pb.collection("users").authWithPassword(username, password);
-      ref.invalidate(pocketBasePod);
+
+      try {
+        await pb.collection("users").authWithPassword(username, password);
+        ref.invalidate(pocketBasePod);
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.toString())),
+          );
+        }
+
+        return;
+      }
     }
   }
 
@@ -82,7 +93,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     const SizedBox(
                       height: 24.0,
                     ),
-                    FilledButton(onPressed: _login, child: const Text("Login"))
+                    FilledButton(
+                        onPressed: () => _login(context),
+                        child: const Text("Login"))
                   ],
                 ),
               ),

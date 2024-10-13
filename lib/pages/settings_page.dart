@@ -5,6 +5,7 @@ import 'package:job_app/api.dart';
 import 'package:job_app/components/tag_list.dart';
 import 'package:job_app/models/tag.dart';
 import 'package:job_app/models/tag_colors.dart';
+import 'package:job_app/pages/view_job/view_job_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -17,7 +18,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 1,
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Settings'),
@@ -26,38 +27,44 @@ class _SettingsPageState extends State<SettingsPage> {
             Tab(icon: Icon(Icons.color_lens), child: const Text("Colors")),
           ]),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: TabBarView(
-            children: [
-              Row(
+        body: TabBarView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32.0),
+              child: Row(
                 children: [
                   Flexible(
-                    child: BusinessDetailsSettings(),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                      child: BusinessDetailsSettings(),
+                    ),
                   ),
                   VerticalDivider(),
                   Flexible(
-                    child: PaymentDetailsSettings(),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                      child: PaymentDetailsSettings(),
+                    ),
                   ),
                 ],
               ),
-              Row(
-                children: [
-                  Flexible(
-                    child: TagColorSettings(),
-                  ),
-                  VerticalDivider(),
-                  Flexible(
-                    child: Container(),
-                  ),
-                  VerticalDivider(),
-                  Flexible(
-                    child: Container(),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+            Row(
+              children: [
+                Flexible(
+                  child: TagColorSettings(),
+                ),
+                VerticalDivider(),
+                Flexible(
+                  child: Container(),
+                ),
+                VerticalDivider(),
+                Flexible(
+                  child: Container(),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -86,10 +93,126 @@ class BusinessDetailsSettings extends StatefulWidget {
 }
 
 class _BusinessDetailsSettingsState extends State<BusinessDetailsSettings> {
+  final _formKey = GlobalKey<FormState>();
+
+  late TextEditingController _businessNameController;
+  late TextEditingController _businessEmailController;
+  late TextEditingController _businessPhoneController;
+
+  late TextEditingController _businessAddressLine1Controller;
+  late TextEditingController _businessAddressLine2Controller;
+  late TextEditingController _businessAddressLine3Controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _businessNameController = TextEditingController();
+    _businessEmailController = TextEditingController();
+    _businessPhoneController = TextEditingController();
+
+    _businessAddressLine1Controller = TextEditingController();
+    _businessAddressLine2Controller = TextEditingController();
+    _businessAddressLine3Controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _businessNameController.dispose();
+
+    _businessEmailController.dispose();
+    _businessPhoneController.dispose();
+
+    _businessAddressLine1Controller.dispose();
+    _businessAddressLine2Controller.dispose();
+    _businessAddressLine3Controller.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            "Business Details",
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          SizedBox(height: 16),
+          TextFormField(
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Business Name',
+            ),
+            controller: _businessNameController,
+            validator: (value) {
+              if (value!.isEmpty) {
+                return "Name is required";
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 8),
+          TextFormField(
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Business Email',
+            ),
+            controller: _businessEmailController,
+          ),
+          SizedBox(height: 8),
+          TextFormField(
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Business Phone',
+            ),
+            controller: _businessPhoneController,
+          ),
+          SizedBox(height: 8),
+          Divider(),
+          SizedBox(height: 8),
+          Text(
+            "Business Address",
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          SizedBox(height: 8),
+          TextFormField(
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Line 1',
+            ),
+            controller: _businessAddressLine1Controller,
+          ),
+          SizedBox(height: 8),
+          TextFormField(
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Line 2',
+            ),
+            controller: _businessAddressLine2Controller,
+          ),
+          SizedBox(height: 8),
+          TextFormField(
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Line 3',
+            ),
+            controller: _businessAddressLine3Controller,
+          ),
+          Spacer(),
+          ElevatedButton(
+            onPressed: _saveBusinessDetails,
+            child: Text("Save"),
+          ),
+        ],
+      ),
+    );
   }
+
+  void _saveBusinessDetails() {}
 }
 
 class TagColorSettings extends ConsumerStatefulWidget {
