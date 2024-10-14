@@ -34,8 +34,8 @@ final testPaymentDetails = PaymentDetails(
 
 class InvoicePdf {
   final Job job;
-  final BusinessDetails businessDetails;
-  final PaymentDetails paymentDetails;
+  final BusinessDetails? businessDetails;
+  final PaymentDetails? paymentDetails;
   final int invoiceNumber;
 
   InvoicePdf(
@@ -57,20 +57,7 @@ class InvoicePdf {
           color: PdfColors.blue,
         ),
         pw.SizedBox(width: 8),
-        pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text(businessDetails.name,
-                style:
-                    pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
-            pw.Text(businessDetails.addressLine1),
-            pw.Text(businessDetails.addressLine2),
-            pw.Text(businessDetails.addressLine3),
-            pw.Text(businessDetails.phoneNumber),
-            pw.Text(businessDetails.email),
-            pw.Text(businessDetails.abn),
-          ],
-        ),
+        if (businessDetails != null) _addBusinessDetails(businessDetails!),
         pw.Spacer(),
         pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.end,
@@ -205,10 +192,12 @@ class InvoicePdf {
                     fontWeight: pw.FontWeight.bold,
                   ),
                 ),
-                pw.Text("Bank Name: ${paymentDetails.bankName}"),
-                pw.Text("Account Name: ${paymentDetails.accountName}"),
-                pw.Text("BSB: ${paymentDetails.bsb}"),
-                pw.Text("Account Number: ${paymentDetails.accountNumber}"),
+                if (paymentDetails != null) ...[
+                  pw.Text("Bank Name: ${paymentDetails!.bankName}"),
+                  pw.Text("Account Name: ${paymentDetails!.accountName}"),
+                  pw.Text("BSB: ${paymentDetails!.bsb}"),
+                  pw.Text("Account Number: ${paymentDetails!.accountNumber}"),
+                ],
               ],
             ),
             pw.SizedBox(
@@ -265,5 +254,21 @@ class InvoicePdf {
 
     final file = File("${output.path}/$fileName");
     await file.writeAsBytes(await pdf.save());
+  }
+
+  pw.Widget _addBusinessDetails(BusinessDetails businessDetails) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(businessDetails.name,
+            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+        pw.Text(businessDetails.addressLine1),
+        pw.Text(businessDetails.addressLine2),
+        pw.Text(businessDetails.addressLine3),
+        pw.Text(businessDetails.phoneNumber),
+        pw.Text(businessDetails.email),
+        pw.Text(businessDetails.abn),
+      ],
+    );
   }
 }

@@ -17,6 +17,11 @@ final authStorePod = FutureProvider((ref) async {
   return pb.authStore;
 });
 
+final userPod = FutureProvider((ref) async {
+  var pb = await ref.watch(pocketBasePod.future);
+  return pb.authStore.model;
+});
+
 final userId = FutureProvider((ref) async {
   var auth = await ref.watch(authStorePod.future);
   return auth.model?.id;
@@ -92,6 +97,13 @@ final tagColorsPod = FutureProvider((ref) async {
 final allTagColorsPod = FutureProvider((ref) async {
   var pod = await ref.watch(tagColorsPod.future);
   return pod.getFullList();
+});
+
+final userDetailsPod = FutureProvider((ref) async {
+  var pb = await ref.watch(pocketBasePod.future);
+  var uId = await ref.watch(userId.future);
+
+  return pb.collection('users').getOne(uId);
 });
 
 Future<void> requestErrorHandler(

@@ -1,6 +1,6 @@
 part of 'view_job_page.dart';
 
-class _PaymentView extends StatelessWidget {
+class _PaymentView extends ConsumerWidget {
   final Job job;
 
   const _PaymentView({
@@ -8,7 +8,11 @@ class _PaymentView extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    var user = ref
+        .watch(userDetailsPod)
+        .mapOrNull(data: (data) => User.fromRecord(data.value));
+
     return Flexible(
       child: _ViewJobContainer(
         onEdit: () => showDialog(
@@ -45,20 +49,21 @@ class _PaymentView extends StatelessWidget {
                 ),
               ),
               Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                      onPressed: () => InvoicePdf(
-                            job: job,
-                            businessDetails: testBusinessDetails,
-                            paymentDetails: testPaymentDetails,
-                          ).generateQuote(),
-                      child: const Text("Generate Quote")),
-                  ElevatedButton(
-                      onPressed: () {}, child: const Text("Generate Invoice"))
-                ],
-              )
+              if (user != null)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                        onPressed: () => InvoicePdf(
+                              job: job,
+                              businessDetails: user.business,
+                              paymentDetails: testPaymentDetails,
+                            ).generateQuote(),
+                        child: const Text("Generate Quote")),
+                    ElevatedButton(
+                        onPressed: () {}, child: const Text("Generate Invoice"))
+                  ],
+                )
             ],
           ),
         ),

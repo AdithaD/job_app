@@ -20,7 +20,8 @@ class BusinessDetails {
       _$BusinessDetailsFromJson(json);
 
   factory BusinessDetails.fromRecord(RecordModel rm) =>
-      BusinessDetails.fromJson(rm.toJson());
+      BusinessDetails.fromJson(
+          rm.toJson()["businessDetails"] as Map<String, dynamic>);
 
   Map<String, dynamic> toJson() => _$BusinessDetailsToJson(this);
 
