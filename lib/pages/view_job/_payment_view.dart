@@ -57,7 +57,7 @@ class _PaymentView extends ConsumerWidget {
                         onPressed: () => InvoicePdf(
                               job: job,
                               businessDetails: user.business,
-                              paymentDetails: testPaymentDetails,
+                              paymentDetails: user.payment,
                             ).generateQuote(),
                         child: const Text("Generate Quote")),
                     ElevatedButton(

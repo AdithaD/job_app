@@ -121,5 +121,13 @@ Future<void> requestErrorHandler(
 
       Navigator.of(context).pop();
     }
+  }).whenComplete(() {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Request completed."),
+        ),
+      );
+    }
   });
 }

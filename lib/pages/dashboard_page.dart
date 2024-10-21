@@ -7,7 +7,7 @@ import 'package:job_app/components/tag_list.dart';
 import 'package:job_app/main.dart';
 import 'package:job_app/models/job.dart';
 import 'package:job_app/pages/job_calendar.dart';
-import 'package:job_app/pages/settings_page.dart';
+import 'package:job_app/pages/settings/settings_page.dart';
 import 'package:job_app/pages/view_job/view_job_page.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
