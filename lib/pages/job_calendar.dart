@@ -39,7 +39,7 @@ class _JobCalendarState extends State<JobCalendar> {
           TableCalendar(
             firstDay: DateTime.utc(2010, 10, 16),
             lastDay: DateTime.utc(2030, 3, 14),
-            focusedDay: DateTime.now(),
+            focusedDay: _focusedDay,
             selectedDayPredicate: (day) {
               return isSameDay(_selectedDay, day);
             },

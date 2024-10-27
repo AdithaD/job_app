@@ -19,7 +19,7 @@ import 'package:job_app/models/job_material.dart';
 import 'package:job_app/models/notes.dart';
 import 'package:job_app/models/tag.dart';
 import 'package:job_app/models/user.dart';
-import 'package:job_app/pages/invoice.dart';
+import 'package:job_app/invoice.dart';
 import 'package:job_app/pages/view_job/view_job_list_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -40,6 +40,7 @@ class ViewJobPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final job = ref.watch(jobByIdPod(jobId));
 
+    // TODO: Change it so that the async value is evaluated in the body of the scaffold.
     return job.when(
       error: (error, stackTrace) => Text("$error, Brother!$stackTrace"),
       loading: () => const CircularProgressIndicator(),

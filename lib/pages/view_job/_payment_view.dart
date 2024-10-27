@@ -158,25 +158,25 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
                   ),
                   const SizedBox(height: 12),
                   SegmentedButton(
-                      expandedInsets: EdgeInsets.all(2.0),
-                      segments: List.generate(
-                        PaymentStatus.values.length,
-                        (index) => ButtonSegment<PaymentStatus>(
-                          value: PaymentStatus.values[index],
-                          label: Text(
-                            paymentStatusStringMap[
-                                    PaymentStatus.values[index]] ??
-                                PaymentStatus.values[index].toString(),
-                          ),
+                    expandedInsets: EdgeInsets.all(2.0),
+                    segments: List.generate(
+                      PaymentStatus.values.length,
+                      (index) => ButtonSegment<PaymentStatus>(
+                        value: PaymentStatus.values[index],
+                        label: Text(
+                          paymentStatusStringMap[PaymentStatus.values[index]] ??
+                              PaymentStatus.values[index].toString(),
                         ),
                       ),
-                      selected: _selectedPaymentStatus,
-                      onSelectionChanged: (value) {
-                        setState(() {
-                          _newStatus = value.first;
-                          _selectedPaymentStatus = value;
-                        });
-                      }),
+                    ),
+                    selected: _selectedPaymentStatus,
+                    onSelectionChanged: (value) {
+                      setState(() {
+                        _newStatus = value.first;
+                        _selectedPaymentStatus = value;
+                      });
+                    },
+                  ),
                 ],
               ),
               const SizedBox(height: 16),

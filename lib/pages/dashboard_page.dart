@@ -6,6 +6,7 @@ import 'package:job_app/components/payment_status_badge.dart';
 import 'package:job_app/components/tag_list.dart';
 import 'package:job_app/main.dart';
 import 'package:job_app/models/job.dart';
+import 'package:job_app/pages/archive_page.dart';
 import 'package:job_app/pages/job_calendar.dart';
 import 'package:job_app/pages/settings/settings_page.dart';
 import 'package:job_app/pages/view_job/view_job_page.dart';
@@ -32,10 +33,26 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               Expanded(
                 child: NavigationRail(
                   onDestinationSelected: (value) async {
-                    if (value == 3) {
-                      var pb = await ref.watch(authStorePod.future);
-                      pb.clear();
-                      ref.invalidate(authStorePod);
+                    switch (value) {
+                      case 0:
+                        break;
+                      case 1:
+                        break;
+                      case 2:
+                        ref.invalidate(allJobsPod);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ArchivePage(),
+                          ),
+                        );
+                        break;
+                      case 3:
+                        var pb = await ref.watch(authStorePod.future);
+                        pb.clear();
+                        ref.invalidate(authStorePod);
+                        break;
+                      default:
+                        break;
                     }
                   },
                   destinations: const [
