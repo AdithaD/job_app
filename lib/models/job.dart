@@ -56,6 +56,10 @@ class Job {
 
   Map<String, dynamic> toJson() => _$JobToJson(this);
 
+  get totalExpenses => materials
+      .map((material) => material.price * material.quantity)
+      .reduce((value, element) => value + element);
+
   Job(
       {this.id = "",
       required this.jobId,

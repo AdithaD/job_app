@@ -85,6 +85,14 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
         .map(_createDataRow)
         .toList();
 
+    var totalExpenses =
+        widget.jobs.fold(0.0, (total, job) => total + job.totalExpenses);
+
+    var totalReceived =
+        widget.jobs.fold(0.0, (total, job) => total + job.receivedAmount);
+
+    var netAmount = totalReceived - totalExpenses;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -184,7 +192,7 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
               return Container(
                 decoration: BoxDecoration(
                     border: Border.all(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  color: Theme.of(context).colorScheme.inversePrimary,
                 )),
                 child: DataTable(
                   sortColumnIndex: columnIndex,
@@ -234,6 +242,12 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
                         'Paid Amount',
                       ),
                     ),
+                    DataColumn(
+                      numeric: true,
+                      label: Text(
+                        'Expenses',
+                      ),
+                    ),
                   ],
                   rows: filteredJobs,
                 ),
@@ -241,6 +255,46 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
             }
           }),
         ),
+        SizedBox(height: 16),
+        SizedBox(
+          height: 128,
+          width: double.infinity,
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).colorScheme.inversePrimary,
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: StatCard(
+                      title: "Total Jobs",
+                      value: filteredJobs.length.toString()),
+                ),
+                Expanded(
+                  child: StatCard(
+                    title: "Total Received",
+                    value: totalReceived.toStringAsFixed(2),
+                  ),
+                ),
+                Expanded(
+                  child: StatCard(
+                    title: "Total Expenses",
+                    value: totalExpenses.toStringAsFixed(2),
+                  ),
+                ),
+                Expanded(
+                  child: StatCard(
+                    title: "Net amount",
+                    value: netAmount.toStringAsFixed(2),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
       ],
     );
   }
@@ -266,11 +320,12 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
                 ? "No scheduled date"
                 : dateFormat.format(job.scheduledDate!)),
             placeholder: job.scheduledDate == null),
-        DataCell(SizedBox(width: 200, child: Text(job.title))),
+        DataCell(SizedBox(width: 100, child: Text(job.title))),
         DataCell(SizedBox(width: 200, child: Text(job.location))),
         DataCell(JobStatusBadge(status: job.jobStatus)),
         DataCell(PaymentStatusBadge(status: job.paymentStatus)),
         DataCell(Text(job.receivedAmount.toString())),
+        DataCell(Text(job.totalExpenses.toString())),
       ],
     );
   }
@@ -293,5 +348,36 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
         return b.compareTo(a);
       }
     }
+  }
+}
+
+class StatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  const StatCard({
+    super.key,
+    required this.title,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card.filled(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
