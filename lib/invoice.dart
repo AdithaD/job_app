@@ -171,9 +171,22 @@ class InvoicePdf {
       ],
     );
 
-    return pw.Row(children: [
+    var paymentTable = [
+      pw.Text(
+        "Bank Transfer",
+        style: pw.TextStyle(
+          fontWeight: pw.FontWeight.bold,
+        ),
+      ),
+      pw.Text("Bank Name: ${paymentDetails!.bankName}"),
+      pw.Text("Account Name: ${paymentDetails!.accountName}"),
+      pw.Text("BSB: ${paymentDetails!.bsb}"),
+      pw.Text("Account Number: ${paymentDetails!.accountNumber}"),
+    ];
+
+    return pw.Column(children: [
       pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        crossAxisAlignment: pw.CrossAxisAlignment.stretch,
         children: [
           pw.Text(
             "Payment Details:",
@@ -183,23 +196,12 @@ class InvoicePdf {
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
-              pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text(
-                    "Bank Transfer",
-                    style: pw.TextStyle(
-                      fontWeight: pw.FontWeight.bold,
-                    ),
-                  ),
-                  if (paymentDetails != null) ...[
-                    pw.Text("Bank Name: ${paymentDetails!.bankName}"),
-                    pw.Text("Account Name: ${paymentDetails!.accountName}"),
-                    pw.Text("BSB: ${paymentDetails!.bsb}"),
-                    pw.Text("Account Number: ${paymentDetails!.accountNumber}"),
-                  ],
-                ],
-              ),
+              pw.SizedBox(
+                  width: 200,
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [if (paymentDetails != null) ...paymentTable],
+                  )),
               pw.SizedBox(
                 width: 200,
                 child: totalTable,
@@ -223,6 +225,7 @@ class InvoicePdf {
 
     pdf.addPage(pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
+        crossAxisAlignment: pw.CrossAxisAlignment.stretch,
         build: (pw.Context context) {
           return [
             //Header
@@ -238,7 +241,7 @@ class InvoicePdf {
             pw.SizedBox(
               height: 20,
             ),
-            pw.Container(
+            pw.SizedBox(
               height: 150,
               child: generateTotal(),
             ),
