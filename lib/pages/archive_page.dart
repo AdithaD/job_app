@@ -199,6 +199,8 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
                   sortAscending: isAscending,
                   headingTextStyle: Theme.of(context).textTheme.labelLarge,
                   showCheckboxColumn: true,
+                  dataRowMinHeight: 40,
+                  dataRowMaxHeight: 60,
                   columns: <DataColumn>[
                     DataColumn(
                       label: Expanded(
@@ -257,7 +259,7 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
         ),
         SizedBox(height: 16),
         SizedBox(
-          height: 128,
+          height: 96,
           width: double.infinity,
           child: Container(
             padding: const EdgeInsets.all(8.0),
@@ -320,8 +322,8 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
                 ? "No scheduled date"
                 : dateFormat.format(job.scheduledDate!)),
             placeholder: job.scheduledDate == null),
-        DataCell(SizedBox(width: 100, child: Text(job.title))),
-        DataCell(SizedBox(width: 200, child: Text(job.location))),
+        DataCell(SizedBox(width: 150, child: Text(job.title))),
+        DataCell(SizedBox(width: 150, child: Text(job.location))),
         DataCell(JobStatusBadge(status: job.jobStatus)),
         DataCell(PaymentStatusBadge(status: job.paymentStatus)),
         DataCell(Text(job.receivedAmount.toString())),
