@@ -20,6 +20,7 @@ import 'package:job_app/models/notes.dart';
 import 'package:job_app/models/tag.dart';
 import 'package:job_app/models/user.dart';
 import 'package:job_app/invoice.dart';
+import 'package:job_app/pages/archive_page.dart';
 import 'package:job_app/pages/view_job/view_job_list_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 

@@ -31,10 +31,9 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
               ?.map((e) => Tag.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      materials:
-          (readExpandedMaterialsJSON(json, 'materials') as List<dynamic>?)
-              ?.map((e) => JobMaterial.fromJson(e as Map<String, dynamic>))
-              .toList(),
+      materials: (json['materials'] as List<dynamic>?)
+          ?.map((e) => JobMaterial.fromJson(e as Map<String, dynamic>))
+          .toList(),
       attachments:
           (readExpandedAttachmentsJSON(json, 'attachments') as List<dynamic>?)
               ?.map((e) => JobAttachment.fromJson(e as Map<String, dynamic>))
@@ -58,7 +57,7 @@ Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
       'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
       'quotedPrice': instance.quotedPrice,
       'receivedAmount': instance.receivedAmount,
-      'materials': materialIdsGetter(instance.materials),
+      'materials': instance.materials,
       'notes': noteIdsGetter(instance.notes),
       'attachments': attachmentIdsGetter(instance.attachments),
     };

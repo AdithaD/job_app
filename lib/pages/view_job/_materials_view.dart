@@ -52,7 +52,7 @@ class _MaterialsView extends ConsumerWidget {
                                           context: context,
                                           builder: (context) =>
                                               _EditMaterialDialog(
-                                            jobId: job.id!,
+                                            job: job,
                                             material: mat,
                                           ),
                                         );
@@ -88,7 +88,7 @@ class _MaterialsView extends ConsumerWidget {
                     await showDialog(
                       context: context,
                       builder: (context) => _EditMaterialDialog(
-                        jobId: job.id!,
+                        job: job,
                         material: JobMaterial(
                           name: "",
                           quantity: 1,
@@ -107,13 +107,13 @@ class _MaterialsView extends ConsumerWidget {
 
   void _deleteMaterial(BuildContext context, WidgetRef ref,
       {required JobMaterial material}) async {
-    var materialCollection = await ref.read(materialsPod.future);
     var jobsCollection = await ref.read(jobsPod.future);
 
     try {
-      await jobsCollection.update(job.id!, body: {"materials-": material.id});
+      var newMaterials =
+          job.materials.where((element) => element.name != material.name);
+      await jobsCollection.update(job.id!, body: {"materials": newMaterials});
 
-      await materialCollection.delete(material.id!);
       ref.invalidate(jobByIdPod(job.id!));
     } catch (error) {
       if (context.mounted) {
@@ -132,10 +132,10 @@ class _MaterialsView extends ConsumerWidget {
 }
 
 class _EditMaterialDialog extends ConsumerStatefulWidget {
-  final String jobId;
+  final Job job;
   final JobMaterial material;
 
-  const _EditMaterialDialog({required this.jobId, required this.material});
+  const _EditMaterialDialog({required this.job, required this.material});
 
   @override
   ConsumerState<_EditMaterialDialog> createState() =>
@@ -237,7 +237,6 @@ class _EditMaterialDialogState extends ConsumerState<_EditMaterialDialog> {
       return;
     }
 
-    var materialCollection = await ref.read(materialsPod.future);
     var jobsCollection = await ref.read(jobsPod.future);
 
     var newMaterial = widget.material;
@@ -250,23 +249,15 @@ class _EditMaterialDialogState extends ConsumerState<_EditMaterialDialog> {
           customMessage:
               "An error occurred while trying to save this material.",
           () async {
-        if (newMaterial.id == null) {
-          newMaterial.owner = await ref.read(userId.future) as String;
-          var json = newMaterial.toJson();
+        var materials = widget.job.materials
+            .where((m) => m.name != newMaterial.name)
+            .toList();
+        materials.add(newMaterial);
 
-          var newMaterialRm = await materialCollection.create(body: json);
-          await jobsCollection
-              .update(widget.jobId, body: {"materials+": newMaterialRm.id});
+        await jobsCollection
+            .update(widget.job.id!, body: {"materials": materials});
 
-          ref.invalidate(materialsPod);
-          ref.invalidate(jobByIdPod);
-        } else {
-          await materialCollection.update(
-            newMaterial.id!,
-            body: newMaterial.toJson(),
-          );
-          ref.invalidate(materialsPod);
-        }
+        ref.invalidate(jobByIdPod(widget.job.id!));
       });
     }
 

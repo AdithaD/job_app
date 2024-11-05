@@ -41,7 +41,6 @@ class Job {
   double? quotedPrice;
   double receivedAmount;
 
-  @JsonKey(readValue: readExpandedMaterialsJSON, toJson: materialIdsGetter)
   List<JobMaterial> materials;
 
   @JsonKey(readValue: readExpandedNotesJSON, toJson: noteIdsGetter)
@@ -88,10 +87,6 @@ List<String> tagIdsGetter(List<Tag> tags) {
   return tags.map((tag) => tag.id ?? "").toList();
 }
 
-List<String> materialIdsGetter(List<JobMaterial> materials) {
-  return materials.map((material) => material.id ?? "").toList();
-}
-
 List<String> attachmentIdsGetter(List<JobAttachment> attachments) {
   return attachments.map((attachment) => attachment.id ?? "").toList();
 }
@@ -102,10 +97,6 @@ List<String> noteIdsGetter(List<Note> notes) {
 
 Object? readExpandedClientJSON(Map<dynamic, dynamic> json, key) {
   return json["expand"]["client"];
-}
-
-Object? readExpandedMaterialsJSON(Map<dynamic, dynamic> json, key) {
-  return json["expand"]["materials"];
 }
 
 Object? readExpandedAttachmentsJSON(Map<dynamic, dynamic> json, key) {
