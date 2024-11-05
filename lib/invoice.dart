@@ -143,7 +143,6 @@ class InvoicePdf {
 
     var totalTable = pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-      mainAxisAlignment: pw.MainAxisAlignment.start,
       children: [
         pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
           pw.Text("Subtotal:"),
@@ -172,42 +171,44 @@ class InvoicePdf {
       ],
     );
 
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Text(
-          "Payment Details:",
-          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-        ),
-        pw.SizedBox(height: 20),
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text(
-                  "Bank Transfer",
-                  style: pw.TextStyle(
-                    fontWeight: pw.FontWeight.bold,
+    return pw.Row(children: [
+      pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            "Payment Details:",
+            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+          ),
+          pw.SizedBox(height: 20),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    "Bank Transfer",
+                    style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold,
+                    ),
                   ),
-                ),
-                if (paymentDetails != null) ...[
-                  pw.Text("Bank Name: ${paymentDetails!.bankName}"),
-                  pw.Text("Account Name: ${paymentDetails!.accountName}"),
-                  pw.Text("BSB: ${paymentDetails!.bsb}"),
-                  pw.Text("Account Number: ${paymentDetails!.accountNumber}"),
+                  if (paymentDetails != null) ...[
+                    pw.Text("Bank Name: ${paymentDetails!.bankName}"),
+                    pw.Text("Account Name: ${paymentDetails!.accountName}"),
+                    pw.Text("BSB: ${paymentDetails!.bsb}"),
+                    pw.Text("Account Number: ${paymentDetails!.accountNumber}"),
+                  ],
                 ],
-              ],
-            ),
-            pw.SizedBox(
-              width: 200,
-              child: totalTable,
-            ),
-          ],
-        )
-      ],
-    );
+              ),
+              pw.SizedBox(
+                width: 200,
+                child: totalTable,
+              )
+            ],
+          )
+        ],
+      )
+    ]);
   }
 
   pw.Widget generateFooter() {
@@ -220,31 +221,32 @@ class InvoicePdf {
   void generateQuote() async {
     final pdf = pw.Document();
 
-    pdf.addPage(pw.Page(
+    pdf.addPage(pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         build: (pw.Context context) {
-          return pw.Container(
-            padding: pw.EdgeInsets.all(12.0),
-            child: pw.Column(mainAxisSize: pw.MainAxisSize.max, children: [
-              //Header
-              generateHeader(),
-              pw.SizedBox(
-                height: 20,
-              ),
-              generateBusinessDetails(),
-              pw.SizedBox(
-                height: 20,
-              ),
-              pw.Expanded(
-                child: pw.Column(children: [generateTable(job)]),
-              ),
-              pw.Flexible(
-                flex: 1,
-                child: generateTotal(),
-              ),
-              generateFooter()
-            ]),
-          );
+          return [
+            //Header
+            pw.SizedBox(
+              child: generateHeader(),
+              height: 120,
+            ),
+            pw.SizedBox(
+              child: generateBusinessDetails(),
+              height: 100,
+            ),
+            generateTable(job),
+            pw.SizedBox(
+              height: 20,
+            ),
+            pw.Container(
+              height: 150,
+              child: generateTotal(),
+            ),
+            pw.SizedBox(
+              height: 120,
+              child: generateFooter(),
+            ),
+          ];
         })); // Page
 
     // On Flutter, use the [path_provider](https://pub.dev/packages/path_provider) library:
