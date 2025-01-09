@@ -43,8 +43,9 @@ class _MaterialsView extends ConsumerWidget {
                               contentPadding:
                                   const EdgeInsets.symmetric(horizontal: 4.0),
                               trailing: SizedBox(
-                                width: 96,
+                                width: 128,
                                 child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     IconButton(
                                       onPressed: () async {

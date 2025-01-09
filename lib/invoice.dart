@@ -275,7 +275,7 @@ class InvoicePdf {
     await file.writeAsBytes(await pdf.save());
 
     if (await Permission.manageExternalStorage.request().isGranted) {
-      var result = await OpenFilex.open(file.path);
+      await OpenFilex.open(file.path);
     }
   }
 

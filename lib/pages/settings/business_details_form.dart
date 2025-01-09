@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_app/api.dart';
 import 'package:job_app/models/business_details.dart';
 import 'package:job_app/models/user.dart';
-import 'package:job_app/pages/settings/details_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BusinessDetailsForm extends ConsumerStatefulWidget {

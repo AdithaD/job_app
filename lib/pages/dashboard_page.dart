@@ -37,8 +37,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       case 0:
                         break;
                       case 1:
-                        break;
-                      case 2:
                         ref.invalidate(allJobsPod);
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -46,7 +44,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           ),
                         );
                         break;
-                      case 3:
+                      case 2:
                         var pb = await ref.watch(authStorePod.future);
                         pb.clear();
                         ref.invalidate(authStorePod);
@@ -59,10 +57,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     NavigationRailDestination(
                       icon: Icon(Icons.dashboard),
                       label: Text('Dashboard'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.person),
-                      label: Text('Clients'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.archive),
@@ -232,7 +226,7 @@ class JobCard extends ConsumerWidget {
       error: (object, stacktrace) => Text("Error ${object.toString()}"),
       loading: () => const Center(child: CircularProgressIndicator()),
       data: (job) => SizedBox(
-        height: 200,
+        height: 250,
         child: Card(
           child: Padding(
             padding: const EdgeInsets.all(16.0),

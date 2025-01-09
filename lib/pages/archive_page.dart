@@ -101,8 +101,9 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
           child: Row(
             children: [
               Flexible(
+                flex: 2,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
                       'Payment Status',
@@ -143,8 +144,9 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
                 width: 32,
               ),
               Flexible(
+                flex: 3,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
                       'Job Status',
