@@ -59,13 +59,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return Scaffold(
       body: Center(
         child: SizedBox(
-          width: 300.0,
-          height: 300.0,
+          width: 400.0,
+          height: 400.0,
           child: Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Form(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     const Text(

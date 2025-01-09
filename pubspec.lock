@@ -541,70 +541,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  open_file:
+  open_filex:
     dependency: "direct main"
     description:
-      name: open_file
-      sha256: "2b7dad19db5fd553f9c04e5113a1853e70ed4768e1126e806541307f5964af53"
+      name: open_filex
+      sha256: dcb7bd3d32db8db5260253a62f1564c02c2c8df64bc0187cd213f65f827519bd
       url: "https://pub.dev"
     source: hosted
-    version: "3.5.8"
-  open_file_android:
-    dependency: transitive
-    description:
-      name: open_file_android
-      sha256: ea307b53479495bf31b736592c5cad952be206ad512cc6b560cc494b2a833bfc
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.4"
-  open_file_ios:
-    dependency: transitive
-    description:
-      name: open_file_ios
-      sha256: "8d9c03495cf14ca70bdbf191894b822ba3b2629cc0046ee311cbbe504db66c44"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
-  open_file_linux:
-    dependency: transitive
-    description:
-      name: open_file_linux
-      sha256: cd2088722048b9c40f8615c6d83005fe0726e0e447e9cdfb40c2b65477291f7d
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.4"
-  open_file_mac:
-    dependency: transitive
-    description:
-      name: open_file_mac
-      sha256: "9d809f528cccc6dc9390caf50893eae9a6944e0f3b8a2558c7ad19e91c9244a1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
-  open_file_platform_interface:
-    dependency: transitive
-    description:
-      name: open_file_platform_interface
-      sha256: "14c50efb1a9667cb96e4fa68d601e6ad348fe337b02789834029b37ae3631498"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
-  open_file_web:
-    dependency: transitive
-    description:
-      name: open_file_web
-      sha256: cfc9d6091a844e305a3698c45f47f5cd88aabb143665dcfb0f5fd6f7524d357e
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.3"
-  open_file_windows:
-    dependency: transitive
-    description:
-      name: open_file_windows
-      sha256: "2f4318d2d3958ec8d63b6dd4430c15b1fcb2fe7a2113e83c734584501a5c6d81"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.2"
+    version: "4.6.0"
   package_config:
     dependency: transitive
     description:
@@ -685,6 +629,54 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.11.1"
+  permission_handler:
+    dependency: "direct main"
+    description:
+      name: permission_handler
+      sha256: "18bf33f7fefbd812f37e72091a15575e72d5318854877e0e4035a24ac1113ecb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "11.3.1"
+  permission_handler_android:
+    dependency: transitive
+    description:
+      name: permission_handler_android
+      sha256: "71bbecfee799e65aff7c744761a57e817e73b738fedf62ab7afd5593da21f9f1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "12.0.13"
+  permission_handler_apple:
+    dependency: transitive
+    description:
+      name: permission_handler_apple
+      sha256: e6f6d73b12438ef13e648c4ae56bd106ec60d17e90a59c4545db6781229082a0
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.4.5"
+  permission_handler_html:
+    dependency: transitive
+    description:
+      name: permission_handler_html
+      sha256: "38f000e83355abb3392140f6bc3030660cfaef189e1f87824facb76300b4ff24"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.3+5"
+  permission_handler_platform_interface:
+    dependency: transitive
+    description:
+      name: permission_handler_platform_interface
+      sha256: e9c8eadee926c4532d0305dff94b85bf961f16759c3af791486613152af4b4f9
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.3"
+  permission_handler_windows:
+    dependency: transitive
+    description:
+      name: permission_handler_windows
+      sha256: "1a790728016f79a41216d88672dbc5df30e686e811ad4e698bfc51f76ad91f1e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.1"
   petitparser:
     dependency: transitive
     description:

@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:job_app/models/business_details.dart';
 import 'package:job_app/models/job.dart';
 import 'package:job_app/models/payment_details.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -259,6 +261,13 @@ class InvoicePdf {
 
     final file = File("${output.path}/$fileName");
     await file.writeAsBytes(await pdf.save());
+
+    print(file.path);
+
+    if (await Permission.manageExternalStorage.request().isGranted) {
+      var result = await OpenFilex.open(file.path);
+      print(result.message);
+    }
   }
 
   pw.Widget _addBusinessDetails(BusinessDetails businessDetails) {
