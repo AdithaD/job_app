@@ -1,9 +1,13 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_app/api.dart';
 import 'package:job_app/models/business_details.dart';
 import 'package:job_app/models/user.dart';
 import 'package:job_app/pages/settings/details_settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BusinessDetailsForm extends ConsumerStatefulWidget {
   final BusinessDetails? business;
@@ -30,6 +34,7 @@ class _BusinessDetailsFormState extends ConsumerState<BusinessDetailsForm> {
   late TextEditingController _businessAddressLine2Controller;
   late TextEditingController _businessAddressLine3Controller;
 
+  File? logoFile;
   @override
   void initState() {
     super.initState();
@@ -136,6 +141,8 @@ class _BusinessDetailsFormState extends ConsumerState<BusinessDetailsForm> {
                             ),
                             controller: _businessABNController,
                           ),
+                          const SizedBox(height: 16),
+                          LogoPicker()
                         ],
                       ),
                     ),
@@ -215,6 +222,68 @@ class _BusinessDetailsFormState extends ConsumerState<BusinessDetailsForm> {
         await userCollection.update(uId, body: newUser.toJson());
 
         ref.invalidate(userDetailsPod);
+      });
+    }
+  }
+}
+
+class LogoPicker extends StatefulWidget {
+  const LogoPicker({
+    super.key,
+  });
+
+  @override
+  State<LogoPicker> createState() => _LogoPickerState();
+}
+
+class _LogoPickerState extends State<LogoPicker> {
+  File? logo;
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadLogo();
+  }
+
+  void loadLogo() async {
+    var sp = await SharedPreferences.getInstance();
+
+    var filePath = sp.getString("logoPath");
+    if (filePath != null) {
+      setState(() {
+        logo = File(filePath);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Text(
+            logo == null ? "No file selected." : logo!.path.split('/').last,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        ElevatedButton(onPressed: _pickFile, child: Text("Select"))
+      ],
+    );
+  }
+
+  void _pickFile() async {
+    var sp = await SharedPreferences.getInstance();
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(type: FileType.image);
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      await sp.setString("logoPath", file.path);
+      print("set logo path: ${file.path}");
+      setState(() {
+        logo = file;
       });
     }
   }

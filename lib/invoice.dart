@@ -9,6 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:shared_preferences/shared_preferences.dart';
 
 const tableHeaders = [
   "Description",
@@ -46,18 +47,27 @@ class InvoicePdf {
       required this.paymentDetails,
       this.invoiceNumber = 1});
 
-  pw.Widget generateHeader() {
+  Future<pw.Widget> generateHeader() async {
     String date = DateFormat("dd/MM/yyyy").format(DateTime.now());
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    final logoPath = prefs.getString("logoPath");
+    print(logoPath);
+    var logo = logoPath != null
+        ? pw.Image(pw.MemoryImage(File(logoPath).readAsBytesSync()),
+            width: 100, height: 100)
+        : pw.Container(
+            height: 100,
+            width: 100,
+            color: PdfColors.blue,
+          );
 
     return pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         // Logo
-        pw.Container(
-          height: 100,
-          width: 100,
-          color: PdfColors.blue,
-        ),
+        logo,
         pw.SizedBox(width: 8),
         if (businessDetails != null) _addBusinessDetails(businessDetails!),
         pw.Spacer(),
@@ -225,6 +235,8 @@ class InvoicePdf {
   void generateQuote() async {
     final pdf = pw.Document();
 
+    final header = await generateHeader();
+
     pdf.addPage(pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         crossAxisAlignment: pw.CrossAxisAlignment.stretch,
@@ -232,7 +244,7 @@ class InvoicePdf {
           return [
             //Header
             pw.SizedBox(
-              child: generateHeader(),
+              child: header,
               height: 120,
             ),
             pw.SizedBox(
@@ -262,11 +274,8 @@ class InvoicePdf {
     final file = File("${output.path}/$fileName");
     await file.writeAsBytes(await pdf.save());
 
-    print(file.path);
-
     if (await Permission.manageExternalStorage.request().isGranted) {
       var result = await OpenFilex.open(file.path);
-      print(result.message);
     }
   }
 
