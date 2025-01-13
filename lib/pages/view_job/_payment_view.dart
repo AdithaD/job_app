@@ -135,111 +135,116 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: Container(
-        height: 450,
-        width: 550,
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-        child: Form(
-          key: formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                "Payment Details",
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
-              const SizedBox(height: 32),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    "Payment Status",
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  SegmentedButton(
-                    expandedInsets: EdgeInsets.all(2.0),
-                    segments: List.generate(
-                      PaymentStatus.values.length,
-                      (index) => ButtonSegment<PaymentStatus>(
-                        value: PaymentStatus.values[index],
-                        label: Text(
-                          paymentStatusStringMap[PaymentStatus.values[index]] ??
-                              PaymentStatus.values[index].toString(),
+      child: SingleChildScrollView(
+        child: Container(
+          height: 600,
+          width: 700,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  "Payment Details",
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+                const SizedBox(height: 32),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      "Payment Status",
+                      style: Theme.of(context).textTheme.labelMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    SegmentedButton(
+                      expandedInsets: EdgeInsets.all(2.0),
+                      segments: List.generate(
+                        PaymentStatus.values.length,
+                        (index) => ButtonSegment<PaymentStatus>(
+                          value: PaymentStatus.values[index],
+                          label: Text(
+                            paymentStatusStringMap[
+                                    PaymentStatus.values[index]] ??
+                                PaymentStatus.values[index].toString(),
+                          ),
+                        ),
+                      ),
+                      selected: _selectedPaymentStatus,
+                      onSelectionChanged: (value) {
+                        setState(() {
+                          _newStatus = value.first;
+                          _selectedPaymentStatus = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      "Quote Amount",
+                      style: Theme.of(context).textTheme.labelMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: 60,
+                      child: TextFormField(
+                        controller: quotedPriceController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^[\d\.]+$'))
+                        ],
+                        validator: (value) =>
+                            validateDouble(value, "Quoted amount", min: 0),
+                        maxLines: 1,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
                         ),
                       ),
                     ),
-                    selected: _selectedPaymentStatus,
-                    onSelectionChanged: (value) {
-                      setState(() {
-                        _newStatus = value.first;
-                        _selectedPaymentStatus = value;
-                      });
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    "Quote Amount",
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: 60,
-                    child: TextFormField(
-                      controller: quotedPriceController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^[\d\.]+$'))
-                      ],
-                      validator: (value) =>
-                          validateDouble(value, "Quoted amount", min: 0),
-                      maxLines: 1,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      "Received Amount",
+                      style: Theme.of(context).textTheme.labelMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: 60,
+                      child: TextFormField(
+                        controller: receivedAmountController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^[\d\.]+$'))
+                        ],
+                        validator: (value) =>
+                            validateDouble(value, "Received amount", min: 0),
+                        maxLines: 1,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    "Received Amount",
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: 60,
-                    child: TextFormField(
-                      controller: receivedAmountController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^[\d\.]+$'))
-                      ],
-                      validator: (value) =>
-                          validateDouble(value, "Received amount", min: 0),
-                      maxLines: 1,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Spacer(),
-              Divider(),
-              LargeElevatedButton(
-                onPressed: () => _save(context),
-                label: "Save",
-              ),
-            ],
+                  ],
+                ),
+                Spacer(),
+                Divider(),
+                LargeElevatedButton(
+                  onPressed: () => _save(context),
+                  label: "Save",
+                ),
+              ],
+            ),
           ),
         ),
       ),

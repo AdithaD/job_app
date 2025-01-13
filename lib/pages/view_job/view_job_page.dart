@@ -47,6 +47,7 @@ class ViewJobPage extends ConsumerWidget {
       data: (job) => DefaultTabController(
         length: 3,
         child: Scaffold(
+          resizeToAvoidBottomInset: false,
           appBar: AppBar(
             toolbarHeight: 120,
             leading: IconButton(
@@ -55,7 +56,8 @@ class ViewJobPage extends ConsumerWidget {
             ),
             title: Text(
               job.title,
-              style: Theme.of(context).textTheme.displayMedium,
+              style: Theme.of(context).textTheme.displaySmall,
+              maxLines: 2,
             ),
             actions: [
               IconButton(

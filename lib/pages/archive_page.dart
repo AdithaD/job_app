@@ -199,16 +199,15 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
                 child: DataTable(
                   sortColumnIndex: columnIndex,
                   sortAscending: isAscending,
-                  headingTextStyle: Theme.of(context).textTheme.labelLarge,
+                  headingTextStyle: Theme.of(context).textTheme.labelMedium,
                   showCheckboxColumn: true,
                   dataRowMinHeight: 40,
-                  dataRowMaxHeight: 60,
+                  dataRowMaxHeight: 100,
                   columns: <DataColumn>[
                     DataColumn(
                       label: Expanded(
                         child: Text(
                           'Scheduled Date',
-                          style: Theme.of(context).textTheme.labelLarge,
                         ),
                       ),
                       onSort: (columnIndex, ascending) {
@@ -221,6 +220,7 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
                     DataColumn(
                       label: Expanded(
                         child: Text(
+                          textAlign: TextAlign.center,
                           'Job Name',
                         ),
                       ),
@@ -243,7 +243,7 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
                     DataColumn(
                       numeric: true,
                       label: Text(
-                        'Paid Amount',
+                        'Armount',
                       ),
                     ),
                     DataColumn(
@@ -261,7 +261,7 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
         ),
         SizedBox(height: 16),
         SizedBox(
-          height: 96,
+          height: 128,
           width: double.infinity,
           child: Container(
             padding: const EdgeInsets.all(8.0),

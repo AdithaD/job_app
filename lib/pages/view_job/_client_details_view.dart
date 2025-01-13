@@ -108,55 +108,57 @@ class _ClientDetailsEditDialogState
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: Container(
-        height: 400,
-        width: 400,
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                "Client Details",
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: "Name",
+      child: SingleChildScrollView(
+        child: Container(
+          height: 400,
+          width: 400,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  "Client Details",
+                  style: Theme.of(context).textTheme.labelLarge,
                 ),
-                controller: _nameController,
-                validator: (value) =>
-                    value!.isEmpty ? "Name is required" : null,
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: "Email",
+                const SizedBox(
+                  height: 16,
                 ),
-                controller: _emailController,
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: "Phone",
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: "Name",
+                  ),
+                  controller: _nameController,
+                  validator: (value) =>
+                      value!.isEmpty ? "Name is required" : null,
                 ),
-                controller: _phoneController,
-              ),
-              const Spacer(),
-              const VerticalDivider(),
-              LargeElevatedButton(
-                label: "Save",
-                onPressed: () => _saveClientDetails(context),
-              )
-            ],
+                const SizedBox(
+                  height: 16,
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: "Email",
+                  ),
+                  controller: _emailController,
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: "Phone",
+                  ),
+                  controller: _phoneController,
+                ),
+                const Spacer(),
+                const VerticalDivider(),
+                LargeElevatedButton(
+                  label: "Save",
+                  onPressed: () => _saveClientDetails(context),
+                )
+              ],
+            ),
           ),
         ),
       ),

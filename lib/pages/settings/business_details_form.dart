@@ -95,54 +95,64 @@ class _BusinessDetailsFormState extends ConsumerState<BusinessDetailsForm> {
                   Flexible(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            "Details",
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Business Name',
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              "Details",
+                              style: Theme.of(context).textTheme.titleMedium,
                             ),
-                            controller: _businessNameController,
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "Name is required";
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Business Email',
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: 'Business Name',
+                              ),
+                              controller: _businessNameController,
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return "Name is required";
+                                }
+                                return null;
+                              },
                             ),
-                            controller: _businessEmailController,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Business Phone',
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: 'Business Email',
+                              ),
+                              controller: _businessEmailController,
                             ),
-                            controller: _businessPhoneNumberController,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Business ABN',
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: 'Business Phone',
+                              ),
+                              controller: _businessPhoneNumberController,
                             ),
-                            controller: _businessABNController,
-                          ),
-                          const SizedBox(height: 16),
-                          LogoPicker()
-                        ],
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: 'Business ABN',
+                              ),
+                              controller: _businessABNController,
+                            ),
+                            const SizedBox(height: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Logo",
+                                    style:
+                                        Theme.of(context).textTheme.titleSmall),
+                                LogoPicker()
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),

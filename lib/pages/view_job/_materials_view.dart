@@ -176,58 +176,62 @@ class _EditMaterialDialogState extends ConsumerState<_EditMaterialDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: Container(
-        width: 400,
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-        child: Form(
-          key: formKey,
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("Edit Material",
-                    style: Theme.of(context).textTheme.labelLarge),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: _nameController,
-                  validator: (value) =>
-                      value!.isEmpty ? "Name is required." : null,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Name',
-                    hintText: 'Enter the name of the material',
+      child: SingleChildScrollView(
+        child: Container(
+          width: 400,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          child: Form(
+            key: formKey,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("Edit Material",
+                      style: Theme.of(context).textTheme.labelLarge),
+                  const SizedBox(height: 24),
+                  TextFormField(
+                    controller: _nameController,
+                    validator: (value) =>
+                        value!.isEmpty ? "Name is required." : null,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Name',
+                      hintText: 'Enter the name of the material',
+                    ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: _quantityController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator: (value) => validateInt(value, "Quantity", min: 1),
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Quantity',
-                    hintText: 'Enter the quantity of the material',
+                  const SizedBox(height: 24),
+                  TextFormField(
+                    controller: _quantityController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    validator: (value) =>
+                        validateInt(value, "Quantity", min: 1),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Quantity',
+                      hintText: 'Enter the quantity of the material',
+                    ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: _priceController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator: (value) => validateDouble(value, "Price", min: 0),
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Price',
-                    hintText: 'Enter the price of the material',
+                  const SizedBox(height: 24),
+                  TextFormField(
+                    controller: _priceController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    validator: (value) =>
+                        validateDouble(value, "Price", min: 0),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Price',
+                      hintText: 'Enter the price of the material',
+                    ),
                   ),
-                ),
-                const Divider(),
-                LargeElevatedButton(
-                  onPressed: () => _saveMaterial(context),
-                  label: 'Save Material',
-                ),
-              ]),
+                  const Divider(),
+                  LargeElevatedButton(
+                    onPressed: () => _saveMaterial(context),
+                    label: 'Save Material',
+                  ),
+                ]),
+          ),
         ),
       ),
     );

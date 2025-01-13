@@ -70,7 +70,7 @@ class TagWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       child: Text(
         tag.name,
-        style: Theme.of(context).textTheme.labelLarge,
+        style: Theme.of(context).textTheme.labelMedium,
       ),
     );
   }

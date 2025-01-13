@@ -266,7 +266,7 @@ class JobCard extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(job.title,
-                              style: Theme.of(context).textTheme.titleLarge),
+                              style: Theme.of(context).textTheme.titleMedium),
                           const SizedBox(
                             height: 12,
                           ),
@@ -312,7 +312,10 @@ class JobCard extends ConsumerWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Icon(Icons.calendar_month),
-                                  Text(dateFormat.format(job.scheduledDate!)),
+                                  Text(dateFormat.format(job.scheduledDate!),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall),
                                 ],
                               ),
                             const SizedBox(height: 8),

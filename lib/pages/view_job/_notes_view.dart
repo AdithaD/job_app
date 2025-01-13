@@ -105,7 +105,8 @@ class _EditNoteDialog extends ConsumerWidget {
               ),
               const Divider(),
               LargeElevatedButton(
-                  onPressed: () => _save(controller, ref), label: "Save"),
+                  onPressed: () => _save(context, controller, ref),
+                  label: "Save"),
             ],
           ),
         ),
@@ -113,25 +114,31 @@ class _EditNoteDialog extends ConsumerWidget {
     );
   }
 
-  void _save(TextEditingController controller, WidgetRef ref) async {
-    var notesCollection = await ref.read(notesPod.future);
-    var jobsCollection = await ref.read(jobsPod.future);
+  Future<void> _save(BuildContext context, TextEditingController controller,
+      WidgetRef ref) async {
+    await requestErrorHandler(context, () async {
+      var notesCollection = await ref.read(notesPod.future);
+      var jobsCollection = await ref.read(jobsPod.future);
 
-    var newNote = note;
-    newNote.text = controller.text;
+      var newNote = note;
+      newNote.text = controller.text;
 
-    if (newNote.id == null) {
-      newNote.owner = await ref.read(userId.future) as String;
-      var json = newNote.toJson();
+      if (newNote.id == null) {
+        newNote.owner = await ref.read(userId.future) as String;
+        var json = newNote.toJson();
 
-      var newNoteRm = await notesCollection.create(body: json);
-      await jobsCollection.update(jobId, body: {"notes+": newNoteRm.id});
+        var newNoteRm = await notesCollection.create(body: json);
+        await jobsCollection.update(jobId, body: {"notes+": newNoteRm.id});
 
-      ref.invalidate(notesPod);
-      ref.invalidate(jobByIdPod);
-    } else {
-      await notesCollection.update(note.id!, body: newNote.toJson());
-      ref.invalidate(notesPod);
+        ref.invalidate(notesPod);
+        ref.invalidate(jobByIdPod);
+      } else {
+        await notesCollection.update(note.id!, body: newNote.toJson());
+        ref.invalidate(notesPod);
+      }
+    });
+    if (context.mounted) {
+      Navigator.of(context).pop();
     }
   }
 }

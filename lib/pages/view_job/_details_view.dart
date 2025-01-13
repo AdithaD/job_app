@@ -14,6 +14,7 @@ class _DetailsView extends StatelessWidget {
         title: "Details",
         onEdit: () => showDialog(
             context: context,
+            useSafeArea: false,
             builder: (context) => _DetailsEditDialog(
                   job: job,
                 )),
@@ -139,133 +140,137 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: Container(
-        height: 600,
-        width: 800,
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              "Edit Details",
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-            SizedBox(
-              height: 8,
-            ),
-            Expanded(
-              child: Row(
-                children: [
-                  Flexible(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _titleController,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Title",
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _referenceIdController,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Reference ID",
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _locationController,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Location",
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          minLines: 4,
-                          maxLines: 8,
-                          controller: _descriptionController,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Description",
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  const VerticalDivider(),
-                  const SizedBox(width: 16),
-                  Flexible(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          "Tags",
-                          style: Theme.of(context).textTheme.labelLarge,
-                        ),
-                        const SizedBox(height: 16),
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(border: Border.all()),
-                            child: ListView.builder(
-                              itemCount: tagNames.length,
-                              itemBuilder: (context, index) {
-                                return ListTile(
-                                  title: Text(tagNames[index]),
-                                  trailing: IconButton(
-                                    onPressed: () => setState(() {
-                                      tagNames.removeAt(index);
-                                    }),
-                                    icon: const Icon(Icons.delete),
-                                  ),
-                                );
-                              },
+      child: SingleChildScrollView(
+        child: Container(
+          height: 600,
+          width: 800,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                "Edit Details",
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Expanded(
+                child: Row(
+                  children: [
+                    Flexible(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _titleController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: "Title",
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _newTagController,
-                                decoration: const InputDecoration(
-                                  labelText: "New Tag",
-                                ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _referenceIdController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: "Reference ID",
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _locationController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: "Location",
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            minLines: 4,
+                            maxLines: 8,
+                            controller: _descriptionController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: "Description",
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const VerticalDivider(),
+                    const SizedBox(width: 16),
+                    Flexible(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            "Tags",
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                          const SizedBox(height: 16),
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(border: Border.all()),
+                              child: ListView.builder(
+                                itemCount: tagNames.length,
+                                itemBuilder: (context, index) {
+                                  return ListTile(
+                                    title: Text(tagNames[index]),
+                                    trailing: IconButton(
+                                      onPressed: () => setState(() {
+                                        tagNames.removeAt(index);
+                                      }),
+                                      icon: const Icon(Icons.delete),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
-                            const SizedBox(
-                              width: 16,
-                            ),
-                            IconButton.filledTonal(
-                              onPressed: _addTag,
-                              icon: const Icon(Icons.add),
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _newTagController,
+                                  decoration: const InputDecoration(
+                                    labelText: "New Tag",
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 16,
+                              ),
+                              IconButton.filledTonal(
+                                onPressed: _addTag,
+                                icon: const Icon(Icons.add),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            const Divider(),
-            const SizedBox(
-              height: 16,
-            ),
-            ElevatedButton(
-                onPressed: () => _saveData(context), child: const Text("Save"))
-          ],
+              const SizedBox(
+                height: 16,
+              ),
+              const Divider(),
+              const SizedBox(
+                height: 16,
+              ),
+              ElevatedButton(
+                onPressed: () => _saveData(context),
+                child: const Text("Save"),
+              )
+            ],
+          ),
         ),
       ),
     );
