@@ -54,6 +54,11 @@ class _ClientDetailsView extends StatelessWidget {
                     fieldName: "Phone",
                     child: Text(client.phone ?? ""),
                   ),
+                  ViewField(
+                    fieldName: "Address",
+                    child: Text(
+                        "${client.addressLine1 ?? ""}\n${client.addressLine2 ?? ""}\n${client.addressLine3 ?? ""}"),
+                  ),
                 ],
               );
             }
@@ -82,6 +87,10 @@ class _ClientDetailsEditDialogState
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
 
+  late TextEditingController _addressLine1Controller;
+  late TextEditingController _addressLine2Controller;
+  late TextEditingController _addressLine3Controller;
+
   @override
   void initState() {
     super.initState();
@@ -94,6 +103,16 @@ class _ClientDetailsEditDialogState
     );
     _phoneController = TextEditingController(
       text: widget.job.client?.phone ?? "",
+    );
+
+    _addressLine1Controller = TextEditingController(
+      text: widget.job.client?.addressLine1 ?? "",
+    );
+    _addressLine2Controller = TextEditingController(
+      text: widget.job.client?.addressLine2 ?? "",
+    );
+    _addressLine3Controller = TextEditingController(
+      text: widget.job.client?.addressLine3 ?? "",
     );
   }
 
@@ -110,7 +129,7 @@ class _ClientDetailsEditDialogState
     return Dialog(
       child: SingleChildScrollView(
         child: Container(
-          height: 400,
+          height: 650,
           width: 400,
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
           child: Form(
@@ -151,6 +170,33 @@ class _ClientDetailsEditDialogState
                   ),
                   controller: _phoneController,
                 ),
+                const SizedBox(
+                  height: 16,
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: "Address Line 1",
+                  ),
+                  controller: _addressLine1Controller,
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: "Address Line 2",
+                  ),
+                  controller: _addressLine2Controller,
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: "Address Line 3",
+                  ),
+                  controller: _addressLine3Controller,
+                ),
                 const Spacer(),
                 const VerticalDivider(),
                 LargeElevatedButton(
@@ -171,6 +217,10 @@ class _ClientDetailsEditDialogState
       newClient.name = _nameController.text;
       newClient.email = _emailController.text;
       newClient.phone = _phoneController.text;
+
+      newClient.addressLine1 = _addressLine1Controller.text;
+      newClient.addressLine2 = _addressLine2Controller.text;
+      newClient.addressLine3 = _addressLine3Controller.text;
 
       await requestErrorHandler(
         context,

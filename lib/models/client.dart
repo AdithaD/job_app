@@ -10,6 +10,10 @@ class Client {
   String? email;
   String? phone;
 
+  String? addressLine1;
+  String? addressLine2;
+  String? addressLine3;
+
   factory Client.fromJson(Map<String, dynamic> json) => _$ClientFromJson(json);
 
   Map<String, dynamic> toJson() => _$ClientToJson(this);

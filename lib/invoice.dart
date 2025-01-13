@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:intl/intl.dart';
 import 'package:job_app/models/business_details.dart';
+import 'package:job_app/models/client.dart';
 import 'package:job_app/models/job.dart';
 import 'package:job_app/models/payment_details.dart';
 import 'package:open_filex/open_filex.dart';
@@ -105,9 +106,9 @@ class InvoicePdf {
             ),
             pw.SizedBox(height: 4),
             pw.Text(client.name),
-            pw.Text("Address Line 1"),
-            pw.Text("Address Line 2"),
-            pw.Text("Address Line 3"),
+            pw.Text(client.addressLine1 ?? ""),
+            pw.Text(client.addressLine2 ?? ""),
+            pw.Text(client.addressLine3 ?? ""),
           ],
         ),
       ]);
