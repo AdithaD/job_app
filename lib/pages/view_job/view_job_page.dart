@@ -40,49 +40,51 @@ class ViewJobPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final job = ref.watch(jobByIdPod(jobId));
 
+    var title = job.whenOrNull(data: (job) => job.title);
+
     // TODO: Change it so that the async value is evaluated in the body of the scaffold.
-    return job.when(
-      error: (error, stackTrace) => Text("$error, Brother!$stackTrace"),
-      loading: () => const CircularProgressIndicator(),
-      data: (job) => DefaultTabController(
-        length: 3,
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          appBar: AppBar(
-            toolbarHeight: 120,
-            leading: IconButton(
-              onPressed: Navigator.of(context).pop,
-              icon: const Icon(Icons.arrow_back),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          toolbarHeight: 120,
+          leading: IconButton(
+            onPressed: Navigator.of(context).pop,
+            icon: const Icon(Icons.arrow_back),
+          ),
+          title: Text(
+            title ?? "",
+            style: Theme.of(context).textTheme.displaySmall,
+            maxLines: 2,
+          ),
+          actions: [
+            IconButton(
+              onPressed: () => _deleteJob(context, ref),
+              icon: const Icon(Icons.delete),
             ),
-            title: Text(
-              job.title,
-              style: Theme.of(context).textTheme.displaySmall,
-              maxLines: 2,
-            ),
-            actions: [
-              IconButton(
-                onPressed: () => _deleteJob(context, ref),
-                icon: const Icon(Icons.delete),
+          ],
+          bottom: const TabBar(
+            tabs: [
+              Tab(
+                text: "Details",
+                icon: Icon(Icons.list_alt),
+              ),
+              Tab(
+                text: "Pricing",
+                icon: Icon(Icons.attach_money),
+              ),
+              Tab(
+                text: "Attachments",
+                icon: Icon(Icons.attach_file),
               ),
             ],
-            bottom: const TabBar(
-              tabs: [
-                Tab(
-                  text: "Details",
-                  icon: Icon(Icons.list_alt),
-                ),
-                Tab(
-                  text: "Pricing",
-                  icon: Icon(Icons.attach_money),
-                ),
-                Tab(
-                  text: "Attachments",
-                  icon: Icon(Icons.attach_file),
-                ),
-              ],
-            ),
           ),
-          body: Padding(
+        ),
+        body: job.when(
+          error: (error, stackTrace) => Text("$error, Brother!$stackTrace"),
+          loading: () => Center(child: const CircularProgressIndicator()),
+          data: (job) => Padding(
             padding: const EdgeInsets.fromLTRB(32.0, 16.0, 32.0, 32.0),
             child: TabBarView(
               children: [

@@ -26,6 +26,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     var result = ref.watch(allJobsPod);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Row(
         children: [
           Column(
