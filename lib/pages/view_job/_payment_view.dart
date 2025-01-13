@@ -58,10 +58,16 @@ class _PaymentView extends ConsumerWidget {
                               job: job,
                               businessDetails: user.business,
                               paymentDetails: user.payment,
-                            ).generateQuote(),
+                            ).generate(),
                         child: const Text("Generate Quote")),
                     ElevatedButton(
-                        onPressed: () {}, child: const Text("Generate Invoice"))
+                        onPressed: () => InvoicePdf(
+                              job: job,
+                              businessDetails: user.business,
+                              paymentDetails: user.payment,
+                              isInvoice: true,
+                            ).generate(),
+                        child: const Text("Generate Invoice"))
                   ],
                 )
             ],

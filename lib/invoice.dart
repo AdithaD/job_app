@@ -41,11 +41,14 @@ class InvoicePdf {
   final PaymentDetails? paymentDetails;
   final int invoiceNumber;
 
+  final bool isInvoice;
+
   InvoicePdf(
       {required this.job,
       required this.businessDetails,
       required this.paymentDetails,
-      this.invoiceNumber = 1});
+      this.invoiceNumber = 1,
+      this.isInvoice = false});
 
   Future<pw.Widget> generateHeader() async {
     String date = DateFormat("dd/MM/yyyy").format(DateTime.now());
@@ -75,7 +78,7 @@ class InvoicePdf {
           crossAxisAlignment: pw.CrossAxisAlignment.end,
           children: [
             pw.Text(
-              "TAX INVOICE",
+              isInvoice ? "TAX INVOICE" : "QUOTE",
               style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
             ),
             pw.Text("Invoice #$invoiceNumber"),
@@ -232,7 +235,7 @@ class InvoicePdf {
     ]);
   }
 
-  void generateQuote() async {
+  void generate() async {
     final pdf = pw.Document();
 
     final header = await generateHeader();
@@ -269,7 +272,8 @@ class InvoicePdf {
     // On Flutter, use the [path_provider](https://pub.dev/packages/path_provider) library:
     final output = await getTemporaryDirectory();
     print("output: ${output.path}");
-    final fileName = "${job.title}_quote.pdf";
+    final fileName =
+        isInvoice ? "${job.title}_invoice.pdf" : "${job.title}_quote.pdf";
 
     final file = File("${output.path}/$fileName");
     await file.writeAsBytes(await pdf.save());
