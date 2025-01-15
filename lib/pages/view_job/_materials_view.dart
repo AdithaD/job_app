@@ -175,63 +175,123 @@ class _EditMaterialDialogState extends ConsumerState<_EditMaterialDialog> {
 
   @override
   Widget build(BuildContext context) {
+    var materialsPresets = ref.watch(allMaterialsPod);
+
     return Dialog(
       child: SingleChildScrollView(
-        child: Container(
-          width: 400,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-          child: Form(
-            key: formKey,
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text("Edit Material",
-                      style: Theme.of(context).textTheme.labelLarge),
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    controller: _nameController,
-                    validator: (value) =>
-                        value!.isEmpty ? "Name is required." : null,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Name',
-                      hintText: 'Enter the name of the material',
-                    ),
+        child: Row(
+          children: [
+            Flexible(
+              child: Container(
+                width: 800,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text("Edit Material",
+                            style: Theme.of(context).textTheme.labelLarge),
+                        const SizedBox(height: 24),
+                        TextFormField(
+                          controller: _nameController,
+                          validator: (value) =>
+                              value!.isEmpty ? "Name is required." : null,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Name',
+                            hintText: 'Enter the name of the material',
+                          ),
+                          onChanged: (value) => setState(() {}),
+                        ),
+                        const SizedBox(height: 24),
+                        TextFormField(
+                          controller: _quantityController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          validator: (value) =>
+                              validateInt(value, "Quantity", min: 1),
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Quantity',
+                            hintText: 'Enter the quantity of the material',
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        TextFormField(
+                          controller: _priceController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          validator: (value) =>
+                              validateDouble(value, "Price", min: 0),
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Price',
+                            hintText: 'Enter the price of the material',
+                          ),
+                        ),
+                        const Divider(),
+                        LargeElevatedButton(
+                          onPressed: () => _saveMaterial(context),
+                          label: 'Save Material',
+                        ),
+                      ]),
+                ),
+              ),
+            ),
+            Flexible(
+              child: Container(
+                padding: EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  border: Border.all(),
+                ),
+                child: SizedBox(
+                  height: 400,
+                  child: materialsPresets.when(
+                    data: (data) {
+                      var filteredData = data
+                          .map((rm) => MaterialPreset.fromRecord(rm))
+                          .where((element) => element.name
+                              .toLowerCase()
+                              .contains(_nameController.text.toLowerCase()))
+                          .toList();
+
+                      return ListView.builder(
+                        itemCount: filteredData.length,
+                        itemBuilder: (context, index) {
+                          var material = filteredData[index];
+                          return Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ListTile(
+                                title: Text(material.name),
+                                subtitle: Text(
+                                    "\$${material.price.toStringAsFixed(2)}"),
+                                onTap: () {
+                                  _nameController.text = material.name;
+                                  _priceController.text =
+                                      material.price.toString();
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    error: (error, stackTrace) => Text(error.toString()),
+                    loading: () =>
+                        Center(child: const CircularProgressIndicator()),
                   ),
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    controller: _quantityController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (value) =>
-                        validateInt(value, "Quantity", min: 1),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Quantity',
-                      hintText: 'Enter the quantity of the material',
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    controller: _priceController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (value) =>
-                        validateDouble(value, "Price", min: 0),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Price',
-                      hintText: 'Enter the price of the material',
-                    ),
-                  ),
-                  const Divider(),
-                  LargeElevatedButton(
-                    onPressed: () => _saveMaterial(context),
-                    label: 'Save Material',
-                  ),
-                ]),
-          ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

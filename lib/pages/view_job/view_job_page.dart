@@ -17,6 +17,7 @@ import 'package:job_app/models/client.dart';
 import 'package:job_app/models/job.dart';
 import 'package:job_app/models/job_attachment.dart';
 import 'package:job_app/models/job_material.dart';
+import 'package:job_app/models/material_preset.dart';
 import 'package:job_app/models/notes.dart';
 import 'package:job_app/models/tag.dart';
 import 'package:job_app/models/user.dart';
