@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_app/api.dart';
 import 'package:job_app/components/job_status_badge.dart';
+import 'package:job_app/components/large_elevated_button.dart';
 import 'package:job_app/components/payment_status_badge.dart';
 import 'package:job_app/components/strings.dart';
 import 'package:job_app/components/tag_list.dart';
@@ -172,29 +173,6 @@ class ViewJobPage extends ConsumerWidget {
         });
       }
     }
-  }
-}
-
-class LargeElevatedButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  final String label;
-
-  const LargeElevatedButton({
-    super.key,
-    required this.onPressed,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 48,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        child: Text(label),
-      ),
-    );
   }
 }
 

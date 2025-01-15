@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_app/api.dart';
+import 'package:job_app/components/large_elevated_button.dart';
+import 'package:job_app/components/strings.dart';
 import 'package:job_app/components/tag_list.dart';
+import 'package:job_app/models/material_preset.dart';
 import 'package:job_app/models/tag.dart';
 import 'package:job_app/models/tag_colors.dart';
 import 'package:job_app/models/user.dart';
@@ -37,7 +41,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage>
         title: const Text('Settings'),
         bottom: TabBar(tabs: [
           Tab(icon: Icon(Icons.person), child: const Text("Details")),
-          Tab(icon: Icon(Icons.color_lens), child: const Text("Colors")),
+          Tab(icon: Icon(Icons.list), child: const Text("Presets")),
         ], controller: _tabController),
       ),
       body: TabBarView(
@@ -59,24 +63,311 @@ class _SettingsPageState extends ConsumerState<SettingsPage>
               ],
             ),
           ),
-          Row(
-            children: [
-              Flexible(
-                child: TagColorSettings(),
-              ),
-              VerticalDivider(),
-              Flexible(
-                child: Container(),
-              ),
-              VerticalDivider(),
-              Flexible(
-                child: Container(),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Row(
+              children: [
+                Flexible(
+                  child: TagColorSettings(),
+                ),
+                VerticalDivider(),
+                Flexible(
+                  flex: 2,
+                  child: MaterialPresetSettings(),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
+  }
+}
+
+class MaterialPresetSettings extends ConsumerStatefulWidget {
+  const MaterialPresetSettings({
+    super.key,
+  });
+
+  @override
+  ConsumerState<MaterialPresetSettings> createState() =>
+      _MaterialPresetSettingsState();
+}
+
+class _MaterialPresetSettingsState
+    extends ConsumerState<MaterialPresetSettings> {
+  var formKey = GlobalKey<FormState>();
+
+  late TextEditingController nameController;
+  late TextEditingController priceController;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    nameController = TextEditingController();
+    priceController = TextEditingController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var materials = ref.watch(allMaterialsPod).when(
+          data: (data) =>
+              data.map((e) => MaterialPreset.fromRecord(e)).toList(),
+          error: (_, __) => <MaterialPreset>[],
+          loading: () => <MaterialPreset>[],
+        );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Material Presets",
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          SizedBox(height: 8),
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                border: Border.all(),
+              ),
+              child: ListView.builder(
+                itemCount: materials.length,
+                itemBuilder: (context, index) => MaterialPresetCard(
+                  material: materials[index],
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 8),
+          Text("Add Material Preset",
+              style: Theme.of(context).textTheme.titleSmall),
+          SizedBox(height: 16),
+          Form(
+            key: formKey,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 300,
+                  child: TextFormField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Material Name',
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8.0),
+                SizedBox(
+                  width: 300,
+                  child: TextFormField(
+                      controller: priceController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Material Price',
+                      ),
+                      validator: (value) =>
+                          validateDouble(value, "Price", min: 0)),
+                ),
+                Spacer(),
+                ElevatedButton(
+                    onPressed: _addMaterialPreset, child: Text("Add Preset"))
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _addMaterialPreset() async {
+    if (formKey.currentState!.validate()) {
+      await requestErrorHandler(context, () async {
+        var materialsCollection = await ref.read(materialsPod.future);
+        var owner = await ref.read(userId.future) as String;
+
+        await materialsCollection.create(body: {
+          "name": nameController.text,
+          "owner": owner,
+          "price": double.parse(priceController.text),
+        });
+
+        nameController.clear();
+        priceController.clear();
+
+        ref.invalidate(allMaterialsPod);
+      });
+    }
+  }
+}
+
+class MaterialPresetCard extends ConsumerWidget {
+  final MaterialPreset material;
+
+  MaterialPresetCard({super.key, required this.material});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: ListTile(
+          title: Text(material.name),
+          subtitle: Text("\$${material.price.toStringAsFixed(2)}"),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+          trailing: SizedBox(
+            width: 128,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  onPressed: () async {
+                    await showDialog(
+                      context: context,
+                      builder: (context) => _EditMaterialPresetDialog(
+                        material: material,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.edit),
+                ),
+                const SizedBox(width: 8.0),
+                IconButton(
+                  onPressed: () =>
+                      _deleteMaterial(context, ref, material: material),
+                  icon: const Icon(Icons.remove_circle_sharp),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _deleteMaterial(BuildContext context, WidgetRef ref,
+      {required MaterialPreset material}) async {
+    await requestErrorHandler(context, () async {
+      var materialsCollection = await ref.read(materialsPod.future);
+
+      await materialsCollection.delete(material.id!);
+
+      ref.invalidate(allMaterialsPod);
+    });
+  }
+}
+
+class _EditMaterialPresetDialog extends ConsumerStatefulWidget {
+  final MaterialPreset material;
+
+  const _EditMaterialPresetDialog({required this.material});
+
+  @override
+  ConsumerState<_EditMaterialPresetDialog> createState() =>
+      _EditMaterialDialogState();
+}
+
+class _EditMaterialDialogState
+    extends ConsumerState<_EditMaterialPresetDialog> {
+  final formKey = GlobalKey<FormState>();
+
+  late TextEditingController _nameController;
+  late TextEditingController _priceController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _nameController = TextEditingController(
+      text: widget.material.name,
+    );
+    _priceController = TextEditingController(
+      text: widget.material.price.toString(),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _nameController.dispose();
+    _priceController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: SingleChildScrollView(
+        child: Container(
+          width: 400,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          child: Form(
+            key: formKey,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("Edit Material Preset",
+                      style: Theme.of(context).textTheme.labelLarge),
+                  const SizedBox(height: 24),
+                  TextFormField(
+                    controller: _nameController,
+                    validator: (value) =>
+                        value!.isEmpty ? "Name is required." : null,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Name',
+                      hintText: 'Enter the name of the material',
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  TextFormField(
+                    controller: _priceController,
+                    keyboardType: TextInputType.number,
+                    validator: (value) =>
+                        validateDouble(value, "Price", min: 0),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Price',
+                      hintText: 'Enter the price of the material',
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Divider(),
+                  LargeElevatedButton(
+                    onPressed: () => _saveMaterial(context),
+                    label: 'Save Preset',
+                  ),
+                ]),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _saveMaterial(BuildContext context) async {
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
+
+    final name = _nameController.text;
+    final price = double.parse(_priceController.text);
+
+    await requestErrorHandler(context, () async {
+      var materialCollection = await ref.read(materialsPod.future);
+
+      await materialCollection.update(widget.material.id!, body: {
+        "name": name,
+        "price": price,
+      });
+
+      ref.invalidate(allMaterialsPod);
+    });
+
+    if (context.mounted) Navigator.of(context).pop();
   }
 }
 
@@ -171,7 +462,7 @@ class _TagColorSettingsState extends ConsumerState<TagColorSettings> {
                   child: TextField(
                     controller: _nameController,
                     decoration: InputDecoration(
-                      labelText: "Tag Name",
+                      labelText: "Name",
                     ),
                   ),
                 ),

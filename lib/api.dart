@@ -84,6 +84,11 @@ final materialsPod = FutureProvider((ref) async {
   return pb.collection('materials');
 });
 
+final allMaterialsPod = FutureProvider((ref) async {
+  var pod = await ref.watch(materialsPod.future);
+  return pod.getFullList();
+});
+
 final attachmentsPod = FutureProvider((ref) async {
   var pb = await ref.watch(pocketBasePod.future);
   return pb.collection('attachments');
