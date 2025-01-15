@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:job_app/api.dart';
 import 'package:job_app/models/business_details.dart';
-import 'package:job_app/models/payment_details.dart';
+import 'package:job_app/models/user.dart';
 import 'package:job_app/pages/settings/business_details_form.dart';
 import 'package:job_app/pages/settings/payment_details_form.dart';
 
 class DetailsSettings extends ConsumerStatefulWidget {
-  final BusinessDetails? business;
-  final PaymentDetails? payment;
-
   const DetailsSettings({
     super.key,
-    this.business,
-    this.payment,
   });
 
   @override
@@ -32,6 +28,10 @@ class _DetailsSettingsState extends ConsumerState<DetailsSettings>
 
   @override
   Widget build(BuildContext context) {
+    var userDetails = ref
+        .watch(userDetailsPod)
+        .whenOrNull(data: (data) => User.fromRecord(data));
+
     return Column(
       children: [
         TabBar.secondary(
@@ -50,10 +50,10 @@ class _DetailsSettingsState extends ConsumerState<DetailsSettings>
             controller: _tabController,
             children: [
               BusinessDetailsForm(
-                business: widget.business,
+                business: userDetails?.business,
               ),
               PaymentDetailsForm(
-                payment: widget.payment,
+                payment: userDetails?.payment,
               ),
             ],
           ),
