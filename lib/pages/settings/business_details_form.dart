@@ -290,7 +290,6 @@ class _LogoPickerState extends State<LogoPicker> {
     if (result != null) {
       File file = File(result.files.single.path!);
       await sp.setString("logoPath", file.path);
-      print("set logo path: ${file.path}");
       setState(() {
         logo = file;
       });

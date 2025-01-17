@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:intl/intl.dart';
 import 'package:job_app/models/business_details.dart';
-import 'package:job_app/models/client.dart';
 import 'package:job_app/models/job.dart';
 import 'package:job_app/models/payment_details.dart';
 import 'package:open_filex/open_filex.dart';
@@ -57,7 +56,6 @@ class InvoicePdf {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     final logoPath = prefs.getString("logoPath");
-    print(logoPath);
     var logo = logoPath != null
         ? pw.Image(pw.MemoryImage(File(logoPath).readAsBytesSync()),
             width: 100, height: 100)
@@ -270,9 +268,7 @@ class InvoicePdf {
           ];
         })); // Page
 
-    // On Flutter, use the [path_provider](https://pub.dev/packages/path_provider) library:
     final output = await getTemporaryDirectory();
-    print("output: ${output.path}");
     final fileName =
         isInvoice ? "${job.title}_invoice.pdf" : "${job.title}_quote.pdf";
 

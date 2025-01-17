@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_app/api.dart';
-import 'package:job_app/models/business_details.dart';
 import 'package:job_app/models/user.dart';
 import 'package:job_app/pages/settings/business_details_form.dart';
 import 'package:job_app/pages/settings/payment_details_form.dart';

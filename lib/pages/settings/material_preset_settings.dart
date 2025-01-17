@@ -24,7 +24,6 @@ class _MaterialPresetSettingsState
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     nameController = TextEditingController();
@@ -129,7 +128,7 @@ class _MaterialPresetSettingsState
 class MaterialPresetCard extends ConsumerWidget {
   final MaterialPreset material;
 
-  MaterialPresetCard({super.key, required this.material});
+  const MaterialPresetCard({super.key, required this.material});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
