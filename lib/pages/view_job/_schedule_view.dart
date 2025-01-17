@@ -174,8 +174,8 @@ class _ScheduleEditDialogState extends ConsumerState<_ScheduleEditDialog> {
   void _selectDateTime(BuildContext context) async {
     final date = await showDatePicker(
       context: context,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
     );
 
     if (context.mounted) {
