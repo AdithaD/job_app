@@ -133,6 +133,8 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
           Navigator.of(context).pop();
         }
       },
+      errorMessage: "Error saving payment details",
+      successMessage: "Payment details saved",
     );
 
     ref.invalidate(jobByIdPod(widget.job.id!));

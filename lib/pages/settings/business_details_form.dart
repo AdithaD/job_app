@@ -210,28 +210,33 @@ class _BusinessDetailsFormState extends ConsumerState<BusinessDetailsForm> {
 
   Future<void> _saveBusinessDetails(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      await requestErrorHandler(context, () async {
-        var userCollection =
-            (await ref.read(pocketBasePod.future)).collection('users');
+      await requestErrorHandler(
+        context,
+        () async {
+          var userCollection =
+              (await ref.read(pocketBasePod.future)).collection('users');
 
-        var uId = await ref.read(userId.future);
+          var uId = await ref.read(userId.future);
 
-        var newUser = User.fromRecord(await userCollection.getOne(uId));
+          var newUser = User.fromRecord(await userCollection.getOne(uId));
 
-        newUser.business = BusinessDetails(
-          name: _businessNameController.text,
-          email: _businessEmailController.text,
-          phoneNumber: _businessPhoneNumberController.text,
-          addressLine1: _businessAddressLine1Controller.text,
-          addressLine2: _businessAddressLine2Controller.text,
-          addressLine3: _businessAddressLine3Controller.text,
-          abn: _businessABNController.text,
-        );
+          newUser.business = BusinessDetails(
+            name: _businessNameController.text,
+            email: _businessEmailController.text,
+            phoneNumber: _businessPhoneNumberController.text,
+            addressLine1: _businessAddressLine1Controller.text,
+            addressLine2: _businessAddressLine2Controller.text,
+            addressLine3: _businessAddressLine3Controller.text,
+            abn: _businessABNController.text,
+          );
 
-        await userCollection.update(uId, body: newUser.toJson());
+          await userCollection.update(uId, body: newUser.toJson());
 
-        ref.invalidate(userDetailsPod);
-      });
+          ref.invalidate(userDetailsPod);
+        },
+        errorMessage: "Error saving business details",
+        successMessage: "Details saved.",
+      );
     }
   }
 }

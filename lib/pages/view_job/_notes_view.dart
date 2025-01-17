@@ -54,17 +54,22 @@ class _NotesView extends ConsumerWidget {
   }
 
   void _deleteNote(BuildContext context, WidgetRef ref, Note note) async {
-    requestErrorHandler(context, () async {
-      var jobsCollection = await ref.read(jobsPod.future);
+    await requestErrorHandler(
+      context,
+      () async {
+        var jobsCollection = await ref.read(jobsPod.future);
 
-      await jobsCollection.update(job.id!, body: {"notes-": note.id});
+        await jobsCollection.update(job.id!, body: {"notes-": note.id});
 
-      var notesCollection = await ref.read(notesPod.future);
+        var notesCollection = await ref.read(notesPod.future);
 
-      await notesCollection.delete(note.id!);
+        await notesCollection.delete(note.id!);
 
-      ref.invalidate(jobByIdPod(job.id!));
-    });
+        ref.invalidate(jobByIdPod(job.id!));
+      },
+      errorMessage: "Error deleting note",
+      successMessage: "Note deleted.",
+    );
   }
 }
 
@@ -116,27 +121,32 @@ class _EditNoteDialog extends ConsumerWidget {
 
   Future<void> _save(BuildContext context, TextEditingController controller,
       WidgetRef ref) async {
-    await requestErrorHandler(context, () async {
-      var notesCollection = await ref.read(notesPod.future);
-      var jobsCollection = await ref.read(jobsPod.future);
+    await requestErrorHandler(
+      context,
+      () async {
+        var notesCollection = await ref.read(notesPod.future);
+        var jobsCollection = await ref.read(jobsPod.future);
 
-      var newNote = note;
-      newNote.text = controller.text;
+        var newNote = note;
+        newNote.text = controller.text;
 
-      if (newNote.id == null) {
-        newNote.owner = await ref.read(userId.future) as String;
-        var json = newNote.toJson();
+        if (newNote.id == null) {
+          newNote.owner = await ref.read(userId.future) as String;
+          var json = newNote.toJson();
 
-        var newNoteRm = await notesCollection.create(body: json);
-        await jobsCollection.update(jobId, body: {"notes+": newNoteRm.id});
+          var newNoteRm = await notesCollection.create(body: json);
+          await jobsCollection.update(jobId, body: {"notes+": newNoteRm.id});
 
-        ref.invalidate(notesPod);
-        ref.invalidate(jobByIdPod);
-      } else {
-        await notesCollection.update(note.id!, body: newNote.toJson());
-        ref.invalidate(notesPod);
-      }
-    });
+          ref.invalidate(notesPod);
+          ref.invalidate(jobByIdPod);
+        } else {
+          await notesCollection.update(note.id!, body: newNote.toJson());
+          ref.invalidate(notesPod);
+        }
+      },
+      errorMessage: "Error saving note",
+      successMessage: "Note saved.",
+    );
     if (context.mounted) {
       Navigator.of(context).pop();
     }

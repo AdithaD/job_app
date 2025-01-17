@@ -113,13 +113,13 @@ final userDetailsPod = FutureProvider((ref) async {
 
 Future<void> requestErrorHandler(
     BuildContext context, Future Function() function,
-    {String? customMessage}) async {
+    {String? errorMessage, String? successMessage}) async {
   await function().onError((error, stackTrace) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            customMessage ?? error.toString(),
+            errorMessage ?? error.toString(),
           ),
         ),
       );
@@ -129,8 +129,8 @@ Future<void> requestErrorHandler(
   }).whenComplete(() {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Request completed."),
+        SnackBar(
+          content: Text(successMessage ?? "Request completed."),
         ),
       );
     }

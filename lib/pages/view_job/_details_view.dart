@@ -293,43 +293,50 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
     newJob.location = _locationController.text;
     newJob.referenceId = _referenceIdController.text;
 
-    requestErrorHandler(context, () async {
-      var tPod = ref.read(tagsPod.future);
-      var tagCollection = await tPod;
+    await requestErrorHandler(
+      context,
+      () async {
+        var tPod = ref.read(tagsPod.future);
+        var tagCollection = await tPod;
 
-      var authStore = ref.read(authStorePod).valueOrNull;
+        var authStore = ref.read(authStorePod).valueOrNull;
 
-      var existingTags = await tagCollection.getFullList();
+        var existingTags = await tagCollection.getFullList();
 
-      var existingTagNames = existingTags.fold(<String, String>{}, (accum, rm) {
-        accum.putIfAbsent(rm.getStringValue("name"), () => rm.id);
-        return accum;
-      });
+        var existingTagNames =
+            existingTags.fold(<String, String>{}, (accum, rm) {
+          accum.putIfAbsent(rm.getStringValue("name"), () => rm.id);
+          return accum;
+        });
 
-      var uid = authStore?.model.id;
+        var uid = authStore?.model.id;
 
-      var tags = <Tag>[];
-      for (var tagName in tagNames) {
-        if (existingTagNames.containsKey(tagName)) {
-          tags.add(
-              Tag(name: tagName, id: existingTagNames[tagName], owner: uid));
-        } else {
-          var rm = await tagCollection
-              .create(body: <String, dynamic>{"name": tagName, "owner": uid});
-          tags.add(Tag.fromRecord(rm));
+        var tags = <Tag>[];
+        for (var tagName in tagNames) {
+          if (existingTagNames.containsKey(tagName)) {
+            tags.add(
+                Tag(name: tagName, id: existingTagNames[tagName], owner: uid));
+          } else {
+            var rm = await tagCollection
+                .create(body: <String, dynamic>{"name": tagName, "owner": uid});
+            tags.add(Tag.fromRecord(rm));
+          }
         }
-      }
 
-      newJob.tags = tags;
+        newJob.tags = tags;
 
-      if (jobs != null) {
-        var body = newJob.toJson();
-        await jobs.update(widget.job.id!, body: body);
-      }
+        if (jobs != null) {
+          var body = newJob.toJson();
+          await jobs.update(widget.job.id!, body: body);
+        }
+      },
+      errorMessage: "Error saving job details",
+      successMessage: "Job saved.",
+    );
 
-      ref.invalidate(jobByIdPod(widget.job.id!));
-      if (context.mounted) Navigator.of(context).pop();
-    });
+    ref.invalidate(jobByIdPod(widget.job.id!));
+
+    if (context.mounted) Navigator.of(context).pop();
   }
 
   void _addTag() {

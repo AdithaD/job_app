@@ -164,13 +164,17 @@ class ViewJobPage extends ConsumerWidget {
     );
     if (response == 'OK') {
       if (context.mounted) {
-        await requestErrorHandler(context, () async {
-          var jobsCollection = await ref.read(jobsPod.future);
-          await jobsCollection.delete(jobId);
-          ref.invalidate(allJobsPod);
-
-          if (context.mounted) Navigator.of(context).pop();
-        });
+        await requestErrorHandler(
+          context,
+          () async {
+            var jobsCollection = await ref.read(jobsPod.future);
+            await jobsCollection.delete(jobId);
+            ref.invalidate(allJobsPod);
+          },
+          errorMessage: "Error deleting job",
+          successMessage: "Job deleted.",
+        );
+        if (context.mounted) Navigator.of(context).pop();
       }
     }
   }

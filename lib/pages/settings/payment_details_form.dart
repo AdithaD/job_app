@@ -157,25 +157,30 @@ class _PaymentDetailsFormState extends ConsumerState<PaymentDetailsForm> {
         accountName: _accountNameController.text,
       );
 
-      await requestErrorHandler(context, () async {
-        var userCollection =
-            (await ref.read(pocketBasePod.future)).collection('users');
+      await requestErrorHandler(
+        context,
+        () async {
+          var userCollection =
+              (await ref.read(pocketBasePod.future)).collection('users');
 
-        var uId = await ref.read(userId.future);
+          var uId = await ref.read(userId.future);
 
-        var newUser = User.fromRecord(await userCollection.getOne(uId));
+          var newUser = User.fromRecord(await userCollection.getOne(uId));
 
-        newUser.payment = PaymentDetails(
-          bankName: payment.bankName,
-          bsb: payment.bsb,
-          accountNumber: payment.accountNumber,
-          accountName: payment.accountName,
-        );
+          newUser.payment = PaymentDetails(
+            bankName: payment.bankName,
+            bsb: payment.bsb,
+            accountNumber: payment.accountNumber,
+            accountName: payment.accountName,
+          );
 
-        await userCollection.update(uId, body: newUser.toJson());
+          await userCollection.update(uId, body: newUser.toJson());
 
-        ref.invalidate(userDetailsPod);
-      });
+          ref.invalidate(userDetailsPod);
+        },
+        errorMessage: "Error saving payment details",
+        successMessage: "Details saved.",
+      );
     }
   }
 }

@@ -432,7 +432,7 @@ class _AddJobDialogState extends ConsumerState<_AddJobDialog> {
             ),
           );
         }
-      });
+      }, errorMessage: "Error creating job", successMessage: "Job created.");
     }
   }
 }

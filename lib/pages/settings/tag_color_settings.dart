@@ -155,30 +155,35 @@ class _TagColorSettingsState extends ConsumerState<TagColorSettings> {
   }
 
   void addTag(BuildContext context) async {
-    await requestErrorHandler(context, () async {
-      var tagName = _nameController.text;
+    await requestErrorHandler(
+      context,
+      () async {
+        var tagName = _nameController.text;
 
-      if (tagName.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Tag name cannot be empty"),
-          ),
+        if (tagName.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Tag name cannot be empty"),
+            ),
+          );
+          return;
+        }
+
+        var tagColorCollection = await ref.read(tagColorsPod.future);
+
+        await tagColorCollection.create(
+          body: {
+            "owner": await ref.read(userId.future) as String,
+            "name": tagName,
+            "color": _selectedColor.value,
+          },
         );
-        return;
-      }
 
-      var tagColorCollection = await ref.read(tagColorsPod.future);
-
-      await tagColorCollection.create(
-        body: {
-          "owner": await ref.read(userId.future) as String,
-          "name": tagName,
-          "color": _selectedColor.value,
-        },
-      );
-
-      ref.invalidate(allTagColorsPod);
-    });
+        ref.invalidate(allTagColorsPod);
+      },
+      errorMessage: "Error adding tag color",
+      successMessage: "Tag color added",
+    );
   }
 
   /// Delete a tag color
@@ -187,12 +192,17 @@ class _TagColorSettingsState extends ConsumerState<TagColorSettings> {
   /// also invalidate the allTagColorsPod so that the UI will be
   /// updated.
   void deleteTag(BuildContext context, TagColor tagColor) async {
-    await requestErrorHandler(context, () async {
-      var tagColorCollection = await ref.read(tagColorsPod.future);
+    await requestErrorHandler(
+      context,
+      () async {
+        var tagColorCollection = await ref.read(tagColorsPod.future);
 
-      await tagColorCollection.delete(tagColor.id!);
+        await tagColorCollection.delete(tagColor.id!);
 
-      ref.invalidate(allTagColorsPod);
-    });
+        ref.invalidate(allTagColorsPod);
+      },
+      errorMessage: "Error deleting tag color",
+      successMessage: "Tag color deleted",
+    );
   }
 }

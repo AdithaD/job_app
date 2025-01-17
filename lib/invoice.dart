@@ -192,10 +192,12 @@ class InvoicePdf {
           fontWeight: pw.FontWeight.bold,
         ),
       ),
-      pw.Text("Bank Name: ${paymentDetails!.bankName}"),
-      pw.Text("Account Name: ${paymentDetails!.accountName}"),
-      pw.Text("BSB: ${paymentDetails!.bsb}"),
-      pw.Text("Account Number: ${paymentDetails!.accountNumber}"),
+      if (paymentDetails != null) ...[
+        pw.Text("Bank Name: ${paymentDetails!.bankName}"),
+        pw.Text("Account Name: ${paymentDetails!.accountName}"),
+        pw.Text("BSB: ${paymentDetails!.bsb}"),
+        pw.Text("Account Number: ${paymentDetails!.accountNumber}"),
+      ]
     ];
 
     return pw.Column(children: [

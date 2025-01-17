@@ -310,20 +310,22 @@ class _EditMaterialDialogState extends ConsumerState<_EditMaterialDialog> {
     newMaterial.price = double.parse(_priceController.text);
 
     if (context.mounted) {
-      await requestErrorHandler(context,
-          customMessage:
-              "An error occurred while trying to save this material.",
-          () async {
-        var materials = widget.job.materials
-            .where((m) => m.name != newMaterial.name)
-            .toList();
-        materials.add(newMaterial);
+      await requestErrorHandler(
+        context,
+        () async {
+          var materials = widget.job.materials
+              .where((m) => m.name != newMaterial.name)
+              .toList();
+          materials.add(newMaterial);
 
-        await jobsCollection
-            .update(widget.job.id!, body: {"materials": materials});
+          await jobsCollection
+              .update(widget.job.id!, body: {"materials": materials});
 
-        ref.invalidate(jobByIdPod(widget.job.id!));
-      });
+          ref.invalidate(jobByIdPod(widget.job.id!));
+        },
+        successMessage: "Material saved.",
+        errorMessage: "Error saving material.",
+      );
     }
 
     if (context.mounted) {

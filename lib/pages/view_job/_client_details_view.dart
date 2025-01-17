@@ -237,7 +237,8 @@ class _ClientDetailsEditDialogState
             await clients.update(newClient.id!, body: newClient.toJson());
           }
         },
-        customMessage: "Error updating client",
+        errorMessage: "Error updating client details",
+        successMessage: "Client details updated",
       );
 
       if (context.mounted) {
