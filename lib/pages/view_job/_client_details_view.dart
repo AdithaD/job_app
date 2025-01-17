@@ -54,6 +54,9 @@ class _ClientDetailsView extends StatelessWidget {
                     fieldName: "Phone",
                     child: Text(client.phone ?? ""),
                   ),
+                  const SizedBox(
+                    height: 16,
+                  ),
                   ViewField(
                     fieldName: "Address",
                     child: Text(

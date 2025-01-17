@@ -91,6 +91,7 @@ class _BusinessDetailsFormState extends ConsumerState<BusinessDetailsForm> {
           children: [
             Expanded(
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Flexible(
                     child: Padding(
