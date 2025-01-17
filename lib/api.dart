@@ -58,10 +58,13 @@ final jobByIdPod = FutureProvider.family<Job, String>((ref, id) async {
   return Job.fromRecord(rm);
 });
 
-final allJobsPod = FutureProvider((ref) async {
+final allJobsPod = FutureProvider<List<Job>>((ref) async {
   var jobCollection = await ref.watch(jobsPod.future);
-  return jobCollection.getFullList(
-      expand: "client,materials,attachments,tags,notes");
+  var jobRecords = await jobCollection.getFullList();
+
+  return Future.wait([
+    for (var job in jobRecords) ref.watch(jobByIdPod(job.id).future),
+  ]);
 });
 
 final clientsPod = FutureProvider((ref) async {

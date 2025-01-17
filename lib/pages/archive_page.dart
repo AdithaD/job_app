@@ -38,8 +38,7 @@ class ArchivePageBody extends ConsumerWidget {
     return jobs.when(
       data: (data) => SizedBox(
         width: double.infinity,
-        child: ArchiveDataTable(
-            jobs: data.map((rm) => Job.fromRecord(rm)).toList()),
+        child: ArchiveDataTable(jobs: data),
       ),
       error: (error, stackTrace) => Text(error.toString()),
       loading: () => Center(child: const CircularProgressIndicator()),
@@ -243,7 +242,8 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
                     DataColumn(
                       numeric: true,
                       label: Text(
-                        'Armount',
+                        'Received Amount',
+                        maxLines: 2,
                       ),
                     ),
                     DataColumn(
