@@ -14,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 const tableHeaders = [
   "Description",
   "Quantity",
-  "Unit Price",
+  "Unit\nPrice",
   "Total",
 ];
 
@@ -80,7 +80,7 @@ class InvoicePdf {
               isInvoice ? "TAX INVOICE" : "QUOTE",
               style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
             ),
-            pw.Text("Invoice #$invoiceNumber"),
+            pw.Text("${isInvoice ? "Invoice" : "Quote"} #$invoiceNumber"),
             pw.Text(date)
           ],
         ),
@@ -118,8 +118,8 @@ class InvoicePdf {
       return [
         mat.name,
         mat.quantity.toString(),
-        mat.price.toString(),
-        (mat.quantity * mat.price).toStringAsFixed(2)
+        "\$${(mat.price).toStringAsFixed(2)}",
+        "\$${(mat.quantity * mat.price).toStringAsFixed(2)}"
       ];
     }).toList();
 
@@ -140,6 +140,13 @@ class InvoicePdf {
           3: pw.Alignment.centerRight,
         },
         tableWidth: pw.TableWidth.max,
+        headerAlignment: pw.Alignment.centerLeft,
+        columnWidths: {
+          0: pw.FlexColumnWidth(5.5),
+          1: pw.FlexColumnWidth(1),
+          2: pw.FlexColumnWidth(1),
+          3: pw.FlexColumnWidth(1)
+        },
         headers: tableHeaders,
         data: tableData);
 
@@ -263,6 +270,7 @@ class InvoicePdf {
               height: 150,
               child: generateTotal(),
             ),
+            if (isInvoice == false) generateCustomerAcceptanceBlock(),
             pw.SizedBox(
               height: 120,
               child: generateFooter(),
@@ -296,5 +304,19 @@ class InvoicePdf {
         pw.Text(businessDetails.abn),
       ],
     );
+  }
+
+  pw.Widget generateCustomerAcceptanceBlock() {
+    return pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text("Customer Printed Full Name: _____________________________",
+              style: pw.TextStyle(fontSize: 16)),
+          pw.SizedBox(height: 20),
+          pw.Text("Customer Signature: ____________________________________",
+              style: pw.TextStyle(fontSize: 16)),
+          pw.Text(
+              "The price quoted is fixed for a period of 30 days only and is subject to variation here after.")
+        ]);
   }
 }
