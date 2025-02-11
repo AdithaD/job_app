@@ -145,7 +145,7 @@ class InvoicePdf {
           0: pw.FlexColumnWidth(5.5),
           1: pw.FlexColumnWidth(1),
           2: pw.FlexColumnWidth(1),
-          3: pw.FlexColumnWidth(1)
+          3: pw.FlexColumnWidth(1.1)
         },
         headers: tableHeaders,
         data: tableData);
@@ -315,8 +315,10 @@ class InvoicePdf {
           pw.SizedBox(height: 20),
           pw.Text("Customer Signature: ____________________________________",
               style: pw.TextStyle(fontSize: 16)),
+          pw.SizedBox(height: 20),
           pw.Text(
-              "The price quoted is fixed for a period of 30 days only and is subject to variation here after.")
+              "The price quoted is fixed for a period of 30 days only and is subject to variation here after.",
+              style: pw.TextStyle(fontStyle: pw.FontStyle.italic))
         ]);
   }
 }
