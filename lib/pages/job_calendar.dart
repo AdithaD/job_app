@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:job_app/components/job_status_badge.dart';
 import 'package:job_app/models/job.dart';
-import 'package:job_app/pages/dashboard_job_card.dart';
 import 'package:job_app/pages/view_job/view_job_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 

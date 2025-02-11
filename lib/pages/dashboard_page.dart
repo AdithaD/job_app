@@ -59,7 +59,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
 class _DashboardContent extends ConsumerWidget {
   final List<Job> jobs;
-  const _DashboardContent({super.key, required this.jobs});
+  const _DashboardContent({required this.jobs});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
