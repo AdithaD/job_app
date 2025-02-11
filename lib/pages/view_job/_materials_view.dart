@@ -111,8 +111,9 @@ class _MaterialsView extends ConsumerWidget {
     var jobsCollection = await ref.read(jobsPod.future);
 
     try {
-      var newMaterials =
-          job.materials.where((element) => element.name != material.name);
+      var newMaterials = job.materials
+          .where((element) => element.name != material.name)
+          .toList();
       await jobsCollection.update(job.id!, body: {"materials": newMaterials});
 
       ref.invalidate(jobByIdPod(job.id!));
