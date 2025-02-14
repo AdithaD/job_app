@@ -214,8 +214,10 @@ class _EditMaterialDialogState extends ConsumerState<_EditMaterialDialog> {
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly
                           ],
-                          validator: (value) =>
-                              validateInt(value, "Quantity", min: 1),
+                          validator: (value) => validateInt(
+                            value,
+                            "Quantity",
+                          ),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: 'Quantity',
