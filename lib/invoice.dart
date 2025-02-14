@@ -142,9 +142,9 @@ class InvoicePdf {
         tableWidth: pw.TableWidth.max,
         headerAlignment: pw.Alignment.centerLeft,
         columnWidths: {
-          0: pw.FlexColumnWidth(5.5),
+          0: pw.FlexColumnWidth(5),
           1: pw.FlexColumnWidth(1),
-          2: pw.FlexColumnWidth(1),
+          2: pw.FlexColumnWidth(1.1),
           3: pw.FlexColumnWidth(1.1)
         },
         headers: tableHeaders,
