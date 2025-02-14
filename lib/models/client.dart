@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:pocketbase/pocketbase.dart';
 
 part 'client.g.dart';
 
@@ -15,6 +16,8 @@ class Client {
   String? addressLine3;
 
   factory Client.fromJson(Map<String, dynamic> json) => _$ClientFromJson(json);
+
+  factory Client.fromRecord(RecordModel rm) => Client.fromJson(rm.toJson());
 
   Map<String, dynamic> toJson() => _$ClientToJson(this);
 

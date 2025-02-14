@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_app/models/client.dart';
 import 'package:job_app/models/job.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,6 +71,13 @@ final allJobsPod = FutureProvider<List<Job>>((ref) async {
 final clientsPod = FutureProvider((ref) async {
   var pb = await ref.watch(pocketBasePod.future);
   return pb.collection('clients');
+});
+
+final allClientsPod = FutureProvider<List<Client>>((ref) async {
+  var clientCollection = await ref.watch(clientsPod.future);
+  var clientRecords = await clientCollection.getFullList();
+
+  return clientRecords.map((rm) => Client.fromRecord(rm)).toList();
 });
 
 final tagsPod = FutureProvider((ref) async {
