@@ -16,6 +16,7 @@ Job _$JobFromJson(Map<String, dynamic> json) => Job(
           readExpandedClientJSON(json, 'client') as Map<String, dynamic>,
         ),
   location: json['location'] as String,
+  discount: (json['discount'] as num).toDouble(),
   referenceId: json['referenceId'] as String?,
   description: json['description'] as String?,
   scheduledDate: readDateTimeJSON(json, 'scheduledDate') == null
@@ -60,6 +61,7 @@ Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
   'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
   'quotedPrice': instance.quotedPrice,
   'receivedAmount': instance.receivedAmount,
+  'discount': instance.discount,
   'materials': instance.materials,
   'notes': noteIdsGetter(instance.notes),
   'attachments': attachmentIdsGetter(instance.attachments),

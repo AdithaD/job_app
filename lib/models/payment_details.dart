@@ -8,10 +8,11 @@ class PaymentDetails {
   String? id;
   String? owner;
 
-  String bankName;
-  String accountName;
-  String accountNumber;
-  String bsb;
+  String? bankName;
+  String? accountName;
+  String? accountNumber;
+  String? bsb;
+  String? paymentTerms;
 
   factory PaymentDetails.fromJson(Map<String, dynamic> json) =>
       _$PaymentDetailsFromJson(json);
@@ -26,5 +27,6 @@ class PaymentDetails {
     required this.accountName,
     required this.accountNumber,
     required this.bsb,
+    this.paymentTerms,
   });
 }
