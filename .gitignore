@@ -44,3 +44,4 @@ app.*.map.json
 .vscode/launch.json
 /pb/pocketbase.exe
 /pb/pb_data/
+/devtools_options.yaml

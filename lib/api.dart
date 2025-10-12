@@ -66,7 +66,7 @@ final jobByIdPod = FutureProvider.family<Job, String>((ref, id) async {
 
 final allJobsPod = FutureProvider<List<Job>>((ref) async {
   var jobCollection = await ref.watch(jobsPod.future);
-  var jobRecords = await jobCollection.getFullList();
+  var jobRecords = await jobCollection.getFullList(sort: '-scheduledDate');
 
   return Future.wait([
     for (var job in jobRecords) ref.watch(jobByIdPod(job.id).future),

@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_app/api.dart';
@@ -70,6 +71,15 @@ class _DashboardContent extends ConsumerWidget {
         .where((job) =>
             job.jobStatus != JobStatus.completed ||
             job.jobStatus != JobStatus.cancelled)
+        .sortedByCompare(
+                (j) => j.scheduledDate,
+                (a, b) {
+              if (a == null && b == null) return 0;
+              if (a == null) return 1;
+              if (b == null) return -1;
+              return a.compareTo(b);
+            }
+        )
         .toList();
 
     return Column(
