@@ -124,12 +124,11 @@ class InvoicePdf {
     }).toList();
 
     var table = pw.TableHelper.fromTextArray(
-        border: pw.TableBorder.all(),
         cellAlignment: pw.Alignment.centerLeft,
         headerDecoration: pw.BoxDecoration(
-          border: pw.TableBorder.all(),
           color: PdfColors.blueGrey500,
         ),
+        border: pw.TableBorder(),
         headerStyle: pw.TextStyle(
           color: PdfColors.white,
         ),
@@ -148,7 +147,8 @@ class InvoicePdf {
           3: pw.FlexColumnWidth(1.1)
         },
         headers: tableHeaders,
-        data: tableData);
+        data: tableData
+    );
 
     return table;
   }

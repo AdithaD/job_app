@@ -7,10 +7,10 @@ part of 'job_material.dart';
 // **************************************************************************
 
 JobMaterial _$JobMaterialFromJson(Map<String, dynamic> json) => JobMaterial(
-      name: json['name'] as String,
-      price: (json['price'] as num).toDouble(),
-      quantity: (json['quantity'] as num).toInt(),
-    );
+  name: json['name'] as String,
+  price: (json['price'] as num).toDouble(),
+  quantity: (json['quantity'] as num).toInt(),
+);
 
 Map<String, dynamic> _$JobMaterialToJson(JobMaterial instance) =>
     <String, dynamic>{

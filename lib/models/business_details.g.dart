@@ -8,14 +8,14 @@ part of 'business_details.dart';
 
 BusinessDetails _$BusinessDetailsFromJson(Map<String, dynamic> json) =>
     BusinessDetails(
-      name: json['name'] as String,
-      addressLine1: json['addressLine1'] as String,
-      addressLine2: json['addressLine2'] as String,
-      addressLine3: json['addressLine3'] as String,
-      phoneNumber: json['phoneNumber'] as String,
-      email: json['email'] as String,
-      abn: json['abn'] as String,
-    )
+        name: json['name'] as String,
+        addressLine1: json['addressLine1'] as String,
+        addressLine2: json['addressLine2'] as String,
+        addressLine3: json['addressLine3'] as String,
+        phoneNumber: json['phoneNumber'] as String,
+        email: json['email'] as String,
+        abn: json['abn'] as String,
+      )
       ..id = json['id'] as String?
       ..owner = json['owner'] as String?;
 
