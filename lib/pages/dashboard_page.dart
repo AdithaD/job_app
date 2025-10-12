@@ -286,7 +286,7 @@ class _AddJobDialogState extends ConsumerState<_AddJobDialog> {
         var jobRm = await jobsCollection.create(
           body: {
             "title": _nameController.text,
-            "owner": await ref.read(userId.future) as String,
+            "owner": await ref.read(userId.future),
             "jobStatus": "unscheduled",
             "paymentStatus": "unquoted",
           },

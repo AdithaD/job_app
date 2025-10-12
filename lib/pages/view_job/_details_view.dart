@@ -284,7 +284,7 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
   /// detail pages are also invalidated so that they will be reloaded with the new
   /// data when they are visited again.
   void _saveData(BuildContext context) async {
-    var jobs = ref.read(jobsPod).valueOrNull;
+    var jobs = ref.read(jobsPod).value;
 
     var newJob = widget.job;
 
@@ -299,7 +299,7 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
         var tPod = ref.read(tagsPod.future);
         var tagCollection = await tPod;
 
-        var authStore = ref.read(authStorePod).valueOrNull;
+        var authStore = ref.read(authStorePod).value;
 
         var existingTags = await tagCollection.getFullList();
 
@@ -309,7 +309,7 @@ class _DetailsEditDialogState extends ConsumerState<_DetailsEditDialog> {
           return accum;
         });
 
-        var uid = authStore?.model.id;
+        var uid = authStore?.record?.id;
 
         var tags = <Tag>[];
         for (var tagName in tagNames) {

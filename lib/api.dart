@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:job_app/models/client.dart';
 import 'package:job_app/models/job.dart';
@@ -7,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:riverpod/riverpod.dart';
 
 PocketBase? pb;
+
+const url = String.fromEnvironment("PB_URL");
 
 final pocketBasePod = FutureProvider((ref) async {
   return getPocketBase();
@@ -20,12 +23,13 @@ final authStorePod = FutureProvider((ref) async {
 
 final userPod = FutureProvider((ref) async {
   var pb = await ref.watch(pocketBasePod.future);
-  return pb.authStore.model;
+  return pb.authStore.record;
 });
 
 final userId = FutureProvider((ref) async {
   var auth = await ref.watch(authStorePod.future);
-  return auth.model?.id;
+
+  return auth.record!.id;
 });
 
 Future<PocketBase> getPocketBase() async {
@@ -39,7 +43,8 @@ Future<PocketBase> getPocketBase() async {
       initial: prefs.getString('pb_auth'),
     );
 
-    pb = PocketBase('https://dora-dev.pockethost.io', authStore: store);
+
+    pb = PocketBase(url, authStore: store);
 
     return pb!;
   }
@@ -127,6 +132,9 @@ Future<void> requestErrorHandler(
     {String? errorMessage, String? successMessage}) async {
   await function().onError((error, stackTrace) {
     if (context.mounted) {
+      if (kDebugMode) {
+        print(error.toString());
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
