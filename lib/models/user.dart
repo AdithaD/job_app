@@ -9,8 +9,7 @@ part 'user.g.dart';
 class User {
   String? id;
   String email;
-  String name;
-  String username;
+  String? name;
   bool verified;
 
   BusinessDetails? business;
@@ -27,9 +26,8 @@ class User {
   User({
     required this.id,
     required this.email,
-    required this.name,
-    required this.username,
     required this.verified,
+    this.name,
     this.logo,
     this.business,
     this.payment,

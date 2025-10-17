@@ -24,7 +24,6 @@ class _MaterialPresetSettingsState
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     nameController = TextEditingController();
@@ -107,21 +106,26 @@ class _MaterialPresetSettingsState
 
   Future<void> _addMaterialPreset() async {
     if (formKey.currentState!.validate()) {
-      await requestErrorHandler(context, () async {
-        var materialsCollection = await ref.read(materialsPod.future);
-        var owner = await ref.read(userId.future) as String;
+      await requestErrorHandler(
+        context,
+        () async {
+          var materialsCollection = await ref.read(materialsPod.future);
+          var owner = await ref.read(userId.future) as String;
 
-        await materialsCollection.create(body: {
-          "name": nameController.text,
-          "owner": owner,
-          "price": double.parse(priceController.text),
-        });
+          await materialsCollection.create(body: {
+            "name": nameController.text,
+            "owner": owner,
+            "price": double.parse(priceController.text),
+          });
 
-        nameController.clear();
-        priceController.clear();
+          nameController.clear();
+          priceController.clear();
 
-        ref.invalidate(allMaterialsPod);
-      });
+          ref.invalidate(allMaterialsPod);
+        },
+        errorMessage: "Error adding material preset",
+        successMessage: "Material preset added",
+      );
     }
   }
 }
@@ -129,7 +133,7 @@ class _MaterialPresetSettingsState
 class MaterialPresetCard extends ConsumerWidget {
   final MaterialPreset material;
 
-  MaterialPresetCard({super.key, required this.material});
+  const MaterialPresetCard({super.key, required this.material});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -172,13 +176,18 @@ class MaterialPresetCard extends ConsumerWidget {
 
   Future<void> _deleteMaterial(BuildContext context, WidgetRef ref,
       {required MaterialPreset material}) async {
-    await requestErrorHandler(context, () async {
-      var materialsCollection = await ref.read(materialsPod.future);
+    await requestErrorHandler(
+      context,
+      () async {
+        var materialsCollection = await ref.read(materialsPod.future);
 
-      await materialsCollection.delete(material.id!);
+        await materialsCollection.delete(material.id!);
 
-      ref.invalidate(allMaterialsPod);
-    });
+        ref.invalidate(allMaterialsPod);
+      },
+      errorMessage: "Error deleting material preset",
+      successMessage: "Material preset deleted",
+    );
   }
 }
 
@@ -277,16 +286,21 @@ class _EditMaterialDialogState
     final name = _nameController.text;
     final price = double.parse(_priceController.text);
 
-    await requestErrorHandler(context, () async {
-      var materialCollection = await ref.read(materialsPod.future);
+    await requestErrorHandler(
+      context,
+      () async {
+        var materialCollection = await ref.read(materialsPod.future);
 
-      await materialCollection.update(widget.material.id!, body: {
-        "name": name,
-        "price": price,
-      });
+        await materialCollection.update(widget.material.id!, body: {
+          "name": name,
+          "price": price,
+        });
 
-      ref.invalidate(allMaterialsPod);
-    });
+        ref.invalidate(allMaterialsPod);
+      },
+      errorMessage: "Error saving material preset",
+      successMessage: "Material preset saved.",
+    );
 
     if (context.mounted) Navigator.of(context).pop();
   }

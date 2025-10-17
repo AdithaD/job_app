@@ -2,22 +2,16 @@ import 'dart:io';
 
 import 'package:intl/intl.dart';
 import 'package:job_app/models/business_details.dart';
-import 'package:job_app/models/client.dart';
 import 'package:job_app/models/job.dart';
 import 'package:job_app/models/payment_details.dart';
 import 'package:open_filex/open_filex.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const tableHeaders = [
-  "Description",
-  "Quantity",
-  "Unit Price",
-  "Total",
-];
+const tableHeaders = ["Description", "Quantity", "Unit\nPrice", "Total"];
 
 final testBusinessDetails = BusinessDetails(
   name: "Business Name",
@@ -44,12 +38,13 @@ class InvoicePdf {
 
   final bool isInvoice;
 
-  InvoicePdf(
-      {required this.job,
-      required this.businessDetails,
-      required this.paymentDetails,
-      this.invoiceNumber = 1,
-      this.isInvoice = false});
+  InvoicePdf({
+    required this.job,
+    required this.businessDetails,
+    required this.paymentDetails,
+    this.invoiceNumber = 1,
+    this.isInvoice = false,
+  });
 
   Future<pw.Widget> generateHeader() async {
     String date = DateFormat("dd/MM/yyyy").format(DateTime.now());
@@ -57,15 +52,13 @@ class InvoicePdf {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     final logoPath = prefs.getString("logoPath");
-    print(logoPath);
     var logo = logoPath != null
-        ? pw.Image(pw.MemoryImage(File(logoPath).readAsBytesSync()),
-            width: 100, height: 100)
-        : pw.Container(
-            height: 100,
+        ? pw.Image(
+            pw.MemoryImage(File(logoPath).readAsBytesSync()),
             width: 100,
-            color: PdfColors.blue,
-          );
+            height: 100,
+          )
+        : pw.Container(height: 100, width: 100, color: PdfColors.blue);
 
     return pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -82,8 +75,8 @@ class InvoicePdf {
               isInvoice ? "TAX INVOICE" : "QUOTE",
               style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
             ),
-            pw.Text("Invoice #$invoiceNumber"),
-            pw.Text(date)
+            pw.Text("${isInvoice ? "Invoice" : "Quote"} #$invoiceNumber"),
+            pw.Text(date),
           ],
         ),
       ],
@@ -95,23 +88,31 @@ class InvoicePdf {
     if (client == null) {
       return pw.Container();
     } else {
-      return pw.Row(children: [
-        // Business details
-        pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
+      return pw.SizedBox(
+        child: pw.Row(
           children: [
-            pw.Text(
-              "To:",
-              style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+            // Business details
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  "To:",
+                  style: pw.TextStyle(
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.SizedBox(height: 4),
+                pw.Text(client.name),
+                pw.Text(client.addressLine1 ?? ""),
+                pw.Text(client.addressLine2 ?? ""),
+                pw.Text(client.addressLine3 ?? ""),
+              ],
             ),
-            pw.SizedBox(height: 4),
-            pw.Text(client.name),
-            pw.Text(client.addressLine1 ?? ""),
-            pw.Text(client.addressLine2 ?? ""),
-            pw.Text(client.addressLine3 ?? ""),
           ],
         ),
-      ]);
+        height: 100,
+      );
     }
   }
 
@@ -120,30 +121,33 @@ class InvoicePdf {
       return [
         mat.name,
         mat.quantity.toString(),
-        mat.price.toString(),
-        (mat.quantity * mat.price).toStringAsFixed(2)
+        "\$${(mat.price).toStringAsFixed(2)}",
+        "\$${(mat.quantity * mat.price).toStringAsFixed(2)}",
       ];
     }).toList();
 
     var table = pw.TableHelper.fromTextArray(
-        border: pw.TableBorder.all(),
-        cellAlignment: pw.Alignment.centerLeft,
-        headerDecoration: pw.BoxDecoration(
-          border: pw.TableBorder.all(),
-          color: PdfColors.blueGrey500,
-        ),
-        headerStyle: pw.TextStyle(
-          color: PdfColors.white,
-        ),
-        cellAlignments: {
-          0: pw.Alignment.centerLeft,
-          1: pw.Alignment.centerRight,
-          2: pw.Alignment.centerRight,
-          3: pw.Alignment.centerRight,
-        },
-        tableWidth: pw.TableWidth.max,
-        headers: tableHeaders,
-        data: tableData);
+      cellAlignment: pw.Alignment.centerLeft,
+      headerDecoration: pw.BoxDecoration(color: PdfColors.blueGrey500),
+      border: pw.TableBorder(),
+      headerStyle: pw.TextStyle(color: PdfColors.white),
+      cellAlignments: {
+        0: pw.Alignment.centerLeft,
+        1: pw.Alignment.centerRight,
+        2: pw.Alignment.centerRight,
+        3: pw.Alignment.centerRight,
+      },
+      tableWidth: pw.TableWidth.max,
+      headerAlignment: pw.Alignment.centerLeft,
+      columnWidths: {
+        0: pw.FlexColumnWidth(5),
+        1: pw.FlexColumnWidth(1),
+        2: pw.FlexColumnWidth(1.1),
+        3: pw.FlexColumnWidth(1.1),
+      },
+      headers: tableHeaders,
+      data: tableData,
+    );
 
     return table;
   }
@@ -153,87 +157,102 @@ class InvoicePdf {
         .map((mat) => mat.quantity * mat.price)
         .fold(0.0, (a, b) => a + b);
 
-    var gst = subtotal * 0.1;
-
-    var total = subtotal + gst;
+    var subtotalWithDiscount = subtotal * (1.0 - job.discount);
+    var gst = subtotalWithDiscount * 0.1;
+    var total = subtotalWithDiscount + gst;
 
     var totalTable = pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       children: [
-        pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-          pw.Text("Subtotal:"),
-          pw.Text("\$${subtotal.toStringAsFixed(2)}"),
-        ]),
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text("Subtotal:"),
+            pw.Text("\$${subtotal.toStringAsFixed(2)}"),
+          ],
+        ),
+        if (job.discount > 1e-10)
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text("Discount ${job.discount * 100}%:"),
+              pw.Text("-\$${subtotalWithDiscount.toStringAsFixed(2)}"),
+            ],
+          ),
         pw.SizedBox(height: 4),
-        pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-          pw.Text("GST:"),
-          pw.Text("\$${gst.toStringAsFixed(2)}"),
-        ]),
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [pw.Text("GST:"), pw.Text("\$${gst.toStringAsFixed(2)}")],
+        ),
         pw.Divider(),
-        pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-          pw.Text(
-            "Total:",
-            style: pw.TextStyle(
-              fontWeight: pw.FontWeight.bold,
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text(
+              "Total:",
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
             ),
-          ),
-          pw.Text(
-            "\$${total.toStringAsFixed(2)}",
-            style: pw.TextStyle(
-              fontWeight: pw.FontWeight.bold,
+            pw.Text(
+              "\$${total.toStringAsFixed(2)}",
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
             ),
-          ),
-        ]),
+          ],
+        ),
       ],
     );
 
     var paymentTable = [
       pw.Text(
         "Bank Transfer",
-        style: pw.TextStyle(
-          fontWeight: pw.FontWeight.bold,
-        ),
+        style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
       ),
-      pw.Text("Bank Name: ${paymentDetails!.bankName}"),
-      pw.Text("Account Name: ${paymentDetails!.accountName}"),
-      pw.Text("BSB: ${paymentDetails!.bsb}"),
-      pw.Text("Account Number: ${paymentDetails!.accountNumber}"),
+      if (paymentDetails != null) ...[
+        pw.Text("Bank Name: ${paymentDetails!.bankName}"),
+        pw.Text("Account Name: ${paymentDetails!.accountName}"),
+        pw.Text("BSB: ${paymentDetails!.bsb}"),
+        pw.Text("Account Number: ${paymentDetails!.accountNumber}"),
+      ],
     ];
 
-    return pw.Column(children: [
-      pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-        children: [
-          pw.Text(
-            "Payment Details:",
-            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-          ),
-          pw.SizedBox(height: 20),
-          pw.Row(
-            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-            children: [
-              pw.SizedBox(
+    return pw.Column(
+      children: [
+        pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+          children: [
+            pw.Text(
+              "Payment Details:",
+              style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+            ),
+            pw.SizedBox(height: 20),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.SizedBox(
                   width: 200,
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [if (paymentDetails != null) ...paymentTable],
-                  )),
-              pw.SizedBox(
-                width: 200,
-                child: totalTable,
-              )
-            ],
-          )
-        ],
-      )
-    ]);
+                  ),
+                ),
+                pw.SizedBox(width: 200, child: totalTable),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   pw.Widget generateFooter() {
-    return pw.Row(mainAxisAlignment: pw.MainAxisAlignment.center, children: [
-      pw.Text("Thank you for your business!",
-          style: pw.TextStyle(fontSize: 16, fontStyle: pw.FontStyle.italic)),
-    ]);
+    return pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.center,
+      children: [
+        pw.Text(
+          "Thank you for your business!",
+          style: pw.TextStyle(fontSize: 16, fontStyle: pw.FontStyle.italic),
+        ),
+      ],
+    );
   }
 
   void generate() async {
@@ -241,40 +260,29 @@ class InvoicePdf {
 
     final header = await generateHeader();
 
-    pdf.addPage(pw.MultiPage(
+    pdf.addPage(
+      pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         crossAxisAlignment: pw.CrossAxisAlignment.stretch,
         build: (pw.Context context) {
           return [
             //Header
-            pw.SizedBox(
-              child: header,
-              height: 120,
-            ),
-            pw.SizedBox(
-              child: generateBusinessDetails(),
-              height: 100,
-            ),
+            pw.SizedBox(child: header, height: 120),
+            generateBusinessDetails(),
             generateTable(job),
-            pw.SizedBox(
-              height: 20,
-            ),
-            pw.SizedBox(
-              height: 150,
-              child: generateTotal(),
-            ),
-            pw.SizedBox(
-              height: 120,
-              child: generateFooter(),
-            ),
+            pw.SizedBox(height: 20),
+            pw.SizedBox(height: 150, child: generateTotal()),
+            if (isInvoice == false) generateCustomerAcceptanceBlock(),
+            pw.SizedBox(height: 120, child: generateFooter()),
           ];
-        })); // Page
+        },
+      ),
+    ); // Page
 
-    // On Flutter, use the [path_provider](https://pub.dev/packages/path_provider) library:
     final output = await getTemporaryDirectory();
-    print("output: ${output.path}");
-    final fileName =
-        isInvoice ? "${job.title}_invoice.pdf" : "${job.title}_quote.pdf";
+    final fileName = isInvoice
+        ? "${job.title}_invoice.pdf"
+        : "${job.title}_quote.pdf";
 
     final file = File("${output.path}/$fileName");
     await file.writeAsBytes(await pdf.save());
@@ -288,14 +296,40 @@ class InvoicePdf {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text(businessDetails.name,
-            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+        pw.Text(
+          businessDetails.name,
+          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+        ),
         pw.Text(businessDetails.addressLine1),
         pw.Text(businessDetails.addressLine2),
         pw.Text(businessDetails.addressLine3),
         pw.Text(businessDetails.phoneNumber),
         pw.Text(businessDetails.email),
         pw.Text(businessDetails.abn),
+      ],
+    );
+  }
+
+  pw.Widget generateCustomerAcceptanceBlock() {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          "Customer Printed Full Name: _____________________________",
+          style: pw.TextStyle(fontSize: 16),
+        ),
+        pw.SizedBox(height: 20),
+        pw.Text(
+          "Customer Signature: ____________________________________",
+          style: pw.TextStyle(fontSize: 16),
+        ),
+        if (paymentDetails?.paymentTerms != null) ...[
+          pw.SizedBox(height: 20),
+          pw.Text(
+            paymentDetails?.paymentTerms ?? "",
+            style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10),
+          ),
+        ],
       ],
     );
   }

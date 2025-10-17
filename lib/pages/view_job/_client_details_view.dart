@@ -54,10 +54,14 @@ class _ClientDetailsView extends StatelessWidget {
                     fieldName: "Phone",
                     child: Text(client.phone ?? ""),
                   ),
+                  const SizedBox(
+                    height: 16,
+                  ),
                   ViewField(
                     fieldName: "Address",
                     child: Text(
-                        "${client.addressLine1 ?? ""}\n${client.addressLine2 ?? ""}\n${client.addressLine3 ?? ""}"),
+                      "${client.addressLine1 ?? ""}\n${client.addressLine2 ?? ""}\n${client.addressLine3 ?? ""}",
+                    ),
                   ),
                 ],
               );
@@ -90,6 +94,8 @@ class _ClientDetailsEditDialogState
   late TextEditingController _addressLine1Controller;
   late TextEditingController _addressLine2Controller;
   late TextEditingController _addressLine3Controller;
+
+  String? selectedClientId;
 
   @override
   void initState() {
@@ -126,85 +132,173 @@ class _ClientDetailsEditDialogState
 
   @override
   Widget build(BuildContext context) {
+    var clients = ref.watch(allClientsPod);
+
     return Dialog(
-      child: SingleChildScrollView(
-        child: Container(
-          height: 650,
-          width: 400,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  "Client Details",
-                  style: Theme.of(context).textTheme.labelLarge,
+      child: Container(
+        height: 650,
+        width: 800,
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Flexible(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      flex: 2,
+                      child: SingleChildScrollView(
+                        child: SizedBox(
+                          height: 500,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Client Details",
+                                    style:
+                                        Theme.of(context).textTheme.labelLarge,
+                                  ),
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _nameController.text = "";
+                                          _phoneController.text = "";
+                                          _emailController.text = "";
+
+                                          _addressLine1Controller.text = "";
+                                          _addressLine2Controller.text = "";
+                                          _addressLine3Controller.text = "";
+
+                                          selectedClientId = null;
+                                        });
+                                      },
+                                      child: Text("Clear"))
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                  labelText: "Name",
+                                ),
+                                controller: _nameController,
+                                enabled: selectedClientId == null,
+                                validator: (value) =>
+                                    value!.isEmpty ? "Name is required" : null,
+                              ),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                  labelText: "Email",
+                                ),
+                                controller: _emailController,
+                                enabled: selectedClientId == null,
+                              ),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                  labelText: "Phone",
+                                ),
+                                controller: _phoneController,
+                                enabled: selectedClientId == null,
+                              ),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                  labelText: "Address Line 1",
+                                ),
+                                controller: _addressLine1Controller,
+                                enabled: selectedClientId == null,
+                              ),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                  labelText: "Address Line 2",
+                                ),
+                                controller: _addressLine2Controller,
+                                enabled: selectedClientId == null,
+                              ),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                  labelText: "Address Line 3",
+                                ),
+                                controller: _addressLine3Controller,
+                                enabled: selectedClientId == null,
+                              ),
+                              const Spacer(),
+                              const VerticalDivider(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 24,
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: clients.when(
+                          data: (clientData) => ListView.builder(
+                                itemBuilder: (context, index) => Card(
+                                  child: ListTile(
+                                    title: Text(clientData[index].name),
+                                    subtitle: Text(
+                                      clientData[index].addressLine1 ?? "",
+                                    ),
+                                    onTap: () {
+                                      var client = clientData[index];
+                                      setState(() {
+                                        selectedClientId = client.id;
+
+                                        _nameController.text = client.name;
+                                        _emailController.text =
+                                            client.email ?? "";
+                                        _phoneController.text =
+                                            client.phone ?? "";
+
+                                        _addressLine1Controller.text =
+                                            client.addressLine1 ?? "";
+                                        _addressLine2Controller.text =
+                                            client.addressLine2 ?? "";
+                                        _addressLine3Controller.text =
+                                            client.addressLine3 ?? "";
+                                      });
+                                    },
+                                  ),
+                                ),
+                                itemCount: clientData.length,
+                              ),
+                          error: (error, stackTrace) =>
+                              Text("Couldn't load client list."),
+                          loading: () => CircularProgressIndicator()),
+                    )
+                  ],
                 ),
-                const SizedBox(
-                  height: 16,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Name",
-                  ),
-                  controller: _nameController,
-                  validator: (value) =>
-                      value!.isEmpty ? "Name is required" : null,
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Email",
-                  ),
-                  controller: _emailController,
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Phone",
-                  ),
-                  controller: _phoneController,
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Address Line 1",
-                  ),
-                  controller: _addressLine1Controller,
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Address Line 2",
-                  ),
-                  controller: _addressLine2Controller,
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Address Line 3",
-                  ),
-                  controller: _addressLine3Controller,
-                ),
-                const Spacer(),
-                const VerticalDivider(),
-                LargeElevatedButton(
-                  label: "Save",
-                  onPressed: () => _saveClientDetails(context),
-                )
-              ],
-            ),
+              ),
+              LargeElevatedButton(
+                label: "Save",
+                onPressed: () => _saveClientDetails(context),
+              )
+            ],
           ),
         ),
       ),
@@ -229,15 +323,18 @@ class _ClientDetailsEditDialogState
 
           if (newClient.id == null) {
             newClient.owner = await ref.read(userId.future) as String;
+
             var rm = await clients.create(body: newClient.toJson());
 
             var jobs = await ref.read(jobsPod.future);
+
             await jobs.update(widget.job.id!, body: {"client": rm.id});
           } else {
             await clients.update(newClient.id!, body: newClient.toJson());
           }
         },
-        customMessage: "Error updating client",
+        errorMessage: "Error updating client details",
+        successMessage: "Client details updated",
       );
 
       if (context.mounted) {

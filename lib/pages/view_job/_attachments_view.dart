@@ -78,17 +78,22 @@ class _AttachmentsView extends ConsumerWidget {
 
   void _deleteAttachment(
       BuildContext context, WidgetRef ref, JobAttachment att) async {
-    requestErrorHandler(context, () async {
-      var jobsCollection = await ref.read(jobsPod.future);
+    await requestErrorHandler(
+      context,
+      () async {
+        var jobsCollection = await ref.read(jobsPod.future);
 
-      await jobsCollection.update(job.id!, body: {"attachments-": att.id});
+        await jobsCollection.update(job.id!, body: {"attachments-": att.id});
 
-      var attachmentsCollection = await ref.read(attachmentsPod.future);
+        var attachmentsCollection = await ref.read(attachmentsPod.future);
 
-      await attachmentsCollection.delete(att.id!);
+        await attachmentsCollection.delete(att.id!);
 
-      ref.invalidate(jobByIdPod(job.id!));
-    });
+        ref.invalidate(jobByIdPod(job.id!));
+      },
+      errorMessage: "Error deleting attachment",
+      successMessage: "Attachment deleted.",
+    );
   }
 }
 
@@ -202,28 +207,33 @@ class _AddAttachmentDialogState extends ConsumerState<_AddAttachmentDialog> {
 
   void _saveAttachment(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      await requestErrorHandler(context, () async {
-        var attachmentsCollection = await ref.read(attachmentsPod.future);
-        var owner = await ref.read(userId.future) as String;
-        var attRM = await attachmentsCollection.create(body: {
-          "name": _nameController.text,
-          "owner": owner,
-        }, files: [
-          http.MultipartFile.fromBytes(
-            "file",
-            _selectedFile!.readAsBytesSync(),
-            filename: _selectedFile!.uri.pathSegments.last,
-          ),
-        ]);
+      await requestErrorHandler(
+        context,
+        () async {
+          var attachmentsCollection = await ref.read(attachmentsPod.future);
+          var owner = await ref.read(userId.future) as String;
+          var attRM = await attachmentsCollection.create(body: {
+            "name": _nameController.text,
+            "owner": owner,
+          }, files: [
+            http.MultipartFile.fromBytes(
+              "file",
+              _selectedFile!.readAsBytesSync(),
+              filename: _selectedFile!.uri.pathSegments.last,
+            ),
+          ]);
 
-        var jobsCollection = await ref.read(jobsPod.future);
-        await jobsCollection.update(
-          widget.job.id!,
-          body: {"attachments+": attRM.id},
-        );
+          var jobsCollection = await ref.read(jobsPod.future);
+          await jobsCollection.update(
+            widget.job.id!,
+            body: {"attachments+": attRM.id},
+          );
 
-        ref.invalidate(jobByIdPod(widget.job.id!));
-      });
+          ref.invalidate(jobByIdPod(widget.job.id!));
+        },
+        errorMessage: "Error adding attachment",
+        successMessage: "Attachment added.",
+      );
 
       if (context.mounted) {
         Navigator.of(context).pop();

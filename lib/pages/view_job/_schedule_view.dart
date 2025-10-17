@@ -13,11 +13,11 @@ class _ScheduleView extends ConsumerWidget {
       child: _ViewJobContainer(
         title: "Schedule",
         onEdit: () => showDialog(
-            context: context,
-            builder: (context) => _ScheduleEditDialog(
-                  job: job,
-                  ref: ref,
-                )),
+          context: context,
+          builder: (context) => _ScheduleEditDialog(
+            job: job,
+          ),
+        ),
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(border: Border.all()),
@@ -47,17 +47,17 @@ class _ScheduleView extends ConsumerWidget {
   }
 }
 
-class _ScheduleEditDialog extends StatefulWidget {
+class _ScheduleEditDialog extends ConsumerStatefulWidget {
   final Job job;
-  final WidgetRef ref;
 
-  const _ScheduleEditDialog({required this.job, required this.ref});
+  const _ScheduleEditDialog({required this.job});
 
   @override
-  State<_ScheduleEditDialog> createState() => _ScheduleEditDialogState();
+  ConsumerState<_ScheduleEditDialog> createState() =>
+      _ScheduleEditDialogState();
 }
 
-class _ScheduleEditDialogState extends State<_ScheduleEditDialog> {
+class _ScheduleEditDialogState extends ConsumerState<_ScheduleEditDialog> {
   late JobStatus _newStatus;
   late DateTime? _newDate;
 
@@ -68,15 +68,23 @@ class _ScheduleEditDialogState extends State<_ScheduleEditDialog> {
     _newDate = widget.job.scheduledDate;
   }
 
-  void _save() async {
+  Future<void> _save() async {
     var newJob = widget.job;
     newJob.jobStatus = _newStatus;
     newJob.scheduledDate = _newDate;
 
-    var jobs = await widget.ref.read(jobsPod.future);
+    await requestErrorHandler(
+      context,
+      () async {
+        var jobs = await ref.read(jobsPod.future);
 
-    await jobs.update(widget.job.id!, body: newJob.toJson());
-    widget.ref.invalidate(jobByIdPod(widget.job.id!));
+        await jobs.update(widget.job.id!, body: newJob.toJson());
+
+        ref.invalidate(jobByIdPod(widget.job.id!));
+      },
+      errorMessage: "Error saving schedule details",
+      successMessage: "Schedule details saved",
+    );
   }
 
   @override
@@ -140,35 +148,7 @@ class _ScheduleEditDialogState extends State<_ScheduleEditDialog> {
                     ),
                     IconButton.filled(
                       icon: const Icon(Icons.calendar_month),
-                      onPressed: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          firstDate: DateTime.now(),
-                          lastDate:
-                              DateTime.now().add(const Duration(days: 365)),
-                        );
-
-                        if (context.mounted) {
-                          if (date != null) {
-                            final time = await showTimePicker(
-                              context: context,
-                              initialTime: TimeOfDay.now(),
-                            );
-
-                            var dateTime =
-                                DateTime(date.year, date.month, date.day);
-
-                            if (time != null) {
-                              dateTime = DateTime(date.year, date.month,
-                                  date.day, time.hour, time.minute);
-                            }
-
-                            setState(() {
-                              _newDate = dateTime;
-                            });
-                          }
-                        }
-                      },
+                      onPressed: () => _selectDateTime(context),
                     ),
                   ],
                 ),
@@ -178,9 +158,10 @@ class _ScheduleEditDialogState extends State<_ScheduleEditDialog> {
               child: Container(),
             ),
             ElevatedButton(
-              onPressed: () {
-                _save();
-                Navigator.of(context).pop();
+              onPressed: () async {
+                await _save();
+
+                if (context.mounted) Navigator.of(context).pop();
               },
               child: const Text("Save"),
             ),
@@ -188,5 +169,33 @@ class _ScheduleEditDialogState extends State<_ScheduleEditDialog> {
         ),
       ),
     );
+  }
+
+  void _selectDateTime(BuildContext context) async {
+    final date = await showDatePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (context.mounted) {
+      if (date != null) {
+        final time = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.now(),
+        );
+
+        var dateTime = DateTime(date.year, date.month, date.day);
+
+        if (time != null) {
+          dateTime =
+              DateTime(date.year, date.month, date.day, time.hour, time.minute);
+        }
+
+        setState(() {
+          _newDate = dateTime;
+        });
+      }
+    }
   }
 }

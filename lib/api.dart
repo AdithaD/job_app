@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:job_app/models/client.dart';
 import 'package:job_app/models/job.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:riverpod/riverpod.dart';
 
 PocketBase? pb;
+
+const url = String.fromEnvironment("PB_URL");
 
 final pocketBasePod = FutureProvider((ref) async {
   return getPocketBase();
@@ -19,12 +23,13 @@ final authStorePod = FutureProvider((ref) async {
 
 final userPod = FutureProvider((ref) async {
   var pb = await ref.watch(pocketBasePod.future);
-  return pb.authStore.model;
+  return pb.authStore.record;
 });
 
 final userId = FutureProvider((ref) async {
   var auth = await ref.watch(authStorePod.future);
-  return auth.model?.id;
+
+  return auth.record!.id;
 });
 
 Future<PocketBase> getPocketBase() async {
@@ -38,7 +43,8 @@ Future<PocketBase> getPocketBase() async {
       initial: prefs.getString('pb_auth'),
     );
 
-    pb = PocketBase('https://dora-dev.pockethost.io', authStore: store);
+
+    pb = PocketBase(url, authStore: store);
 
     return pb!;
   }
@@ -58,15 +64,25 @@ final jobByIdPod = FutureProvider.family<Job, String>((ref, id) async {
   return Job.fromRecord(rm);
 });
 
-final allJobsPod = FutureProvider((ref) async {
+final allJobsPod = FutureProvider<List<Job>>((ref) async {
   var jobCollection = await ref.watch(jobsPod.future);
-  return jobCollection.getFullList(
-      expand: "client,materials,attachments,tags,notes");
+  var jobRecords = await jobCollection.getFullList(sort: '-scheduledDate');
+
+  return Future.wait([
+    for (var job in jobRecords) ref.watch(jobByIdPod(job.id).future),
+  ]);
 });
 
 final clientsPod = FutureProvider((ref) async {
   var pb = await ref.watch(pocketBasePod.future);
   return pb.collection('clients');
+});
+
+final allClientsPod = FutureProvider<List<Client>>((ref) async {
+  var clientCollection = await ref.watch(clientsPod.future);
+  var clientRecords = await clientCollection.getFullList();
+
+  return clientRecords.map((rm) => Client.fromRecord(rm)).toList();
 });
 
 final tagsPod = FutureProvider((ref) async {
@@ -113,13 +129,16 @@ final userDetailsPod = FutureProvider((ref) async {
 
 Future<void> requestErrorHandler(
     BuildContext context, Future Function() function,
-    {String? customMessage}) async {
+    {String? errorMessage, String? successMessage}) async {
   await function().onError((error, stackTrace) {
     if (context.mounted) {
+      if (kDebugMode) {
+        print(error.toString());
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            customMessage ?? error.toString(),
+            errorMessage ?? error.toString(),
           ),
         ),
       );
@@ -129,8 +148,8 @@ Future<void> requestErrorHandler(
   }).whenComplete(() {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Request completed."),
+        SnackBar(
+          content: Text(successMessage ?? "Request completed."),
         ),
       );
     }

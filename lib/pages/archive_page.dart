@@ -38,8 +38,7 @@ class ArchivePageBody extends ConsumerWidget {
     return jobs.when(
       data: (data) => SizedBox(
         width: double.infinity,
-        child: ArchiveDataTable(
-            jobs: data.map((rm) => Job.fromRecord(rm)).toList()),
+        child: ArchiveDataTable(jobs: data),
       ),
       error: (error, stackTrace) => Text(error.toString()),
       loading: () => Center(child: const CircularProgressIndicator()),
@@ -196,64 +195,67 @@ class _ArchiveDataTableState extends State<ArchiveDataTable> {
                     border: Border.all(
                   color: Theme.of(context).colorScheme.inversePrimary,
                 )),
-                child: DataTable(
-                  sortColumnIndex: columnIndex,
-                  sortAscending: isAscending,
-                  headingTextStyle: Theme.of(context).textTheme.labelMedium,
-                  showCheckboxColumn: true,
-                  dataRowMinHeight: 40,
-                  dataRowMaxHeight: 100,
-                  columns: <DataColumn>[
-                    DataColumn(
-                      label: Expanded(
-                        child: Text(
-                          'Scheduled Date',
+                child: SingleChildScrollView(
+                  child: DataTable(
+                    sortColumnIndex: columnIndex,
+                    sortAscending: isAscending,
+                    headingTextStyle: Theme.of(context).textTheme.labelMedium,
+                    showCheckboxColumn: true,
+                    dataRowMinHeight: 40,
+                    dataRowMaxHeight: 100,
+                    columns: <DataColumn>[
+                      DataColumn(
+                        label: Expanded(
+                          child: Text(
+                            'Scheduled Date',
+                          ),
+                        ),
+                        onSort: (columnIndex, ascending) {
+                          setState(() {
+                            columnIndex = columnIndex;
+                            isAscending = ascending;
+                          });
+                        },
+                      ),
+                      DataColumn(
+                        label: Expanded(
+                          child: Text(
+                            textAlign: TextAlign.center,
+                            'Job Name',
+                          ),
                         ),
                       ),
-                      onSort: (columnIndex, ascending) {
-                        setState(() {
-                          columnIndex = columnIndex;
-                          isAscending = ascending;
-                        });
-                      },
-                    ),
-                    DataColumn(
-                      label: Expanded(
-                        child: Text(
-                          textAlign: TextAlign.center,
-                          'Job Name',
+                      DataColumn(
+                        label: Text(
+                          'Address',
                         ),
                       ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Address',
+                      DataColumn(
+                        label: Text(
+                          'Status',
+                        ),
                       ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Status',
+                      DataColumn(
+                        label: Text(
+                          'Payment',
+                        ),
                       ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Payment',
+                      DataColumn(
+                        numeric: true,
+                        label: Text(
+                          'Received Amount',
+                          maxLines: 2,
+                        ),
                       ),
-                    ),
-                    DataColumn(
-                      numeric: true,
-                      label: Text(
-                        'Armount',
+                      DataColumn(
+                        numeric: true,
+                        label: Text(
+                          'Expenses',
+                        ),
                       ),
-                    ),
-                    DataColumn(
-                      numeric: true,
-                      label: Text(
-                        'Expenses',
-                      ),
-                    ),
-                  ],
-                  rows: filteredJobs,
+                    ],
+                    rows: filteredJobs,
+                  ),
                 ),
               );
             }

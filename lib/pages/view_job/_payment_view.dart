@@ -3,9 +3,7 @@ part of 'view_job_page.dart';
 class _PaymentView extends ConsumerWidget {
   final Job job;
 
-  const _PaymentView({
-    required this.job,
-  });
+  const _PaymentView({required this.job});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,37 +14,33 @@ class _PaymentView extends ConsumerWidget {
     return Flexible(
       child: _ViewJobContainer(
         onEdit: () => showDialog(
-            context: context,
-            builder: (context) => _PaymentEditDialog(
-                  job: job,
-                )),
+          context: context,
+          builder: (context) => _PaymentEditDialog(job: job),
+        ),
         title: "Payment",
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(border: Border.all()),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 16.0,
             children: [
               ViewField(
                 fieldName: "Status",
                 child: PaymentStatusBadge(status: job.paymentStatus),
-              ),
-              const SizedBox(
-                height: 16,
               ),
               if (job.quotedPrice != null)
                 ViewField(
                   fieldName: "Quoted amount",
                   child: Text("\$${job.quotedPrice!.toStringAsFixed(2)}"),
                 ),
-              const SizedBox(
-                height: 16,
-              ),
               ViewField(
                 fieldName: "Received amount",
-                child: Text(
-                  "\$${job.receivedAmount.toStringAsFixed(2)}",
-                ),
+                child: Text("\$${job.receivedAmount.toStringAsFixed(2)}"),
+              ),
+              ViewField(
+                fieldName: "Discount",
+                child: Text("${(job.discount * 100).toStringAsFixed(0)}%"),
               ),
               Spacer(),
               if (user != null)
@@ -54,22 +48,26 @@ class _PaymentView extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
-                        onPressed: () => InvoicePdf(
-                              job: job,
-                              businessDetails: user.business,
-                              paymentDetails: user.payment,
-                            ).generate(),
-                        child: const Text("Generate Quote")),
+                      onPressed: () => InvoicePdf(
+                        job: job,
+                        businessDetails: user.business,
+                        paymentDetails: user.payment,
+                        invoiceNumber: job.jobId,
+                      ).generate(),
+                      child: const Text("Generate Quote"),
+                    ),
                     ElevatedButton(
-                        onPressed: () => InvoicePdf(
-                              job: job,
-                              businessDetails: user.business,
-                              paymentDetails: user.payment,
-                              isInvoice: true,
-                            ).generate(),
-                        child: const Text("Generate Invoice"))
+                      onPressed: () => InvoicePdf(
+                        job: job,
+                        businessDetails: user.business,
+                        paymentDetails: user.payment,
+                        invoiceNumber: job.jobId,
+                        isInvoice: true,
+                      ).generate(),
+                      child: const Text("Generate Invoice"),
+                    ),
                   ],
-                )
+                ),
             ],
           ),
         ),
@@ -96,8 +94,12 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
 
   late Set<PaymentStatus> _selectedPaymentStatus;
 
-  late TextEditingController receivedAmountController =
-      TextEditingController(text: widget.job.receivedAmount.toString());
+  late TextEditingController receivedAmountController = TextEditingController(
+    text: widget.job.receivedAmount.toString(),
+  );
+  late TextEditingController discountController = TextEditingController(
+    text: widget.job.discount.toString(),
+  );
 
   @override
   void initState() {
@@ -106,6 +108,7 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
 
     receivedAmountController.text = widget.job.receivedAmount.toString();
     quotedPriceController.text = widget.job.quotedPrice?.toString() ?? "";
+    discountController.text = (widget.job.discount * 100).toString();
     _selectedPaymentStatus = LinkedHashSet.from([widget.job.paymentStatus]);
   }
 
@@ -120,19 +123,19 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
     newJob.quotedPrice =
         double.tryParse(quotedPriceController.text) ?? widget.job.quotedPrice;
     newJob.receivedAmount = double.parse(receivedAmountController.text);
+    newJob.discount = double.parse(discountController.text) / 100;
 
     await requestErrorHandler(
       context,
       () async {
         var jobs = await ref.read(jobsPod.future);
-        await jobs.update(
-          widget.job.id!,
-          body: newJob.toJson(),
-        );
+        await jobs.update(widget.job.id!, body: newJob.toJson());
         if (context.mounted) {
           Navigator.of(context).pop();
         }
       },
+      errorMessage: "Error saving payment details",
+      successMessage: "Payment details saved",
     );
 
     ref.invalidate(jobByIdPod(widget.job.id!));
@@ -149,13 +152,14 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
           child: Form(
             key: formKey,
             child: Column(
+              spacing: 16.0,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
                   "Payment Details",
                   style: Theme.of(context).textTheme.labelLarge,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16.0),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -171,8 +175,8 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
                         (index) => ButtonSegment<PaymentStatus>(
                           value: PaymentStatus.values[index],
                           label: Text(
-                            paymentStatusStringMap[
-                                    PaymentStatus.values[index]] ??
+                            paymentStatusStringMap[PaymentStatus
+                                    .values[index]] ??
                                 PaymentStatus.values[index].toString(),
                           ),
                         ),
@@ -187,61 +191,47 @@ class _PaymentEditDialogState extends ConsumerState<_PaymentEditDialog> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      "Quote Amount",
-                      style: Theme.of(context).textTheme.labelMedium,
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: 60,
-                      child: TextFormField(
-                        controller: quotedPriceController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'^[\d\.]+$'))
-                        ],
-                        validator: (value) =>
-                            validateDouble(value, "Quoted amount", min: 0),
-                        maxLines: 1,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
+                TextFormField(
+                  controller: quotedPriceController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^[\d\.]+$')),
                   ],
+                  validator: (value) =>
+                      validateDouble(value, "Quoted amount", min: 0),
+                  maxLines: 1,
+                  decoration: const InputDecoration(
+                    labelText: 'Quoted amount',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-                const SizedBox(height: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      "Received Amount",
-                      style: Theme.of(context).textTheme.labelMedium,
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: 60,
-                      child: TextFormField(
-                        controller: receivedAmountController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'^[\d\.]+$'))
-                        ],
-                        validator: (value) =>
-                            validateDouble(value, "Received amount", min: 0),
-                        maxLines: 1,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
+                TextFormField(
+                  controller: receivedAmountController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^[\d\.]+$')),
                   ],
+                  validator: (value) =>
+                      validateDouble(value, "Received amount", min: 0),
+                  maxLines: 1,
+                  decoration: const InputDecoration(
+                    labelText: "Received Amount",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                TextFormField(
+                  controller: discountController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^[\d\.]+$')),
+                  ],
+                  validator: (value) =>
+                      validateDouble(value, "Discount", min: 0, max: 100),
+                  maxLines: 1,
+                  decoration: const InputDecoration(
+                    labelText: "Discount (%)",
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 Spacer(),
                 Divider(),

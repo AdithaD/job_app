@@ -1,13 +1,11 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_app/api.dart';
-import 'package:job_app/components/job_status_badge.dart';
 import 'package:job_app/components/large_elevated_button.dart';
-import 'package:job_app/components/payment_status_badge.dart';
-import 'package:job_app/components/tag_list.dart';
-import 'package:job_app/main.dart';
 import 'package:job_app/models/job.dart';
 import 'package:job_app/pages/archive_page.dart';
+import 'package:job_app/pages/dashboard_job_card.dart';
 import 'package:job_app/pages/job_calendar.dart';
 import 'package:job_app/pages/settings/settings_page.dart';
 import 'package:job_app/pages/view_job/view_job_page.dart';
@@ -30,172 +28,20 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       resizeToAvoidBottomInset: false,
       body: Row(
         children: [
-          Column(
-            children: [
-              Expanded(
-                child: NavigationRail(
-                  onDestinationSelected: (value) async {
-                    switch (value) {
-                      case 0:
-                        break;
-                      case 1:
-                        ref.invalidate(allJobsPod);
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ArchivePage(),
-                          ),
-                        );
-                        break;
-                      case 2:
-                        var pb = await ref.watch(authStorePod.future);
-                        pb.clear();
-                        ref.invalidate(authStorePod);
-                        break;
-                      default:
-                        break;
-                    }
-                  },
-                  destinations: const [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.dashboard),
-                      label: Text('Dashboard'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.archive),
-                      label: Text('Archive'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.logout),
-                      label: Text('Logout'),
-                    ),
-                  ],
-                  selectedIndex: 0,
-                  labelType: NavigationRailLabelType.all,
-                ),
-              ),
-              Spacer(),
-              Divider(),
-              IconButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => SettingsPage(),
-                  ),
-                ),
-                icon: Icon(Icons.settings),
-                tooltip: "Settings",
-                padding: EdgeInsets.all(8.0),
-              ),
-              SizedBox(
-                height: 16,
-              )
-            ],
-          ),
+          DashboardNavigationRail(),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(32.0),
               child: Builder(
-                builder: (context) {
-                  return result.when(
-                    error: (object, stacktrace) =>
-                        Text("Error ${object.toString()}"),
-                    loading: () => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                    data: (jobRecordModels) {
-                      var jobs = jobRecordModels
-                          .map(
-                            (rm) => Job.fromRecord(rm),
-                          )
-                          .toList();
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(
-                            height: 100,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Job Dashboard",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .displayLarge),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                // Upcoming Jobs
-                                Flexible(
-                                  flex: 1,
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Text("Upcoming jobs"),
-                                            Row(
-                                              children: [
-                                                IconButton(
-                                                  onPressed: () {},
-                                                  icon: const Icon(
-                                                      Icons.filter_alt),
-                                                ),
-                                                IconButton(
-                                                  onPressed: () {},
-                                                  icon: const Icon(Icons.sort),
-                                                )
-                                              ],
-                                            ),
-                                          ]),
-                                      Expanded(
-                                          child: Container(
-                                        decoration:
-                                            BoxDecoration(border: Border.all()),
-                                        child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: ListView.builder(
-                                              itemCount: jobs.length,
-                                              itemBuilder: (context, index) {
-                                                var job = jobs[index];
-                                                return InkWell(
-                                                  child:
-                                                      JobCard(jobId: job.id!),
-                                                  onTap: () {
-                                                    ref.invalidate(
-                                                        jobByIdPod(job.id!));
-                                                    Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ViewJobPage(
-                                                                jobId: job.id!),
-                                                      ),
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            )),
-                                      )),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                // Maps
-                                Flexible(
-                                  child: JobCalendar(
-                                    jobs: jobs,
-                                  ),
-                                )
-                              ],
-                            ),
-                          )
-                        ],
-                      );
-                    },
-                  );
-                },
+                builder: (context) => result.when(
+                  error: (object, stacktrace) =>
+                      Text("Error ${object.toString()}"),
+                  loading: () => const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                  data: (jobs) => _DashboardContent(jobs: jobs),
+                ),
               ),
             ),
           ),
@@ -207,135 +53,169 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         tooltip: 'Add job',
         label: const Text('Add job'),
         icon: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }
 
-class JobCard extends ConsumerWidget {
-  final String jobId;
+class _DashboardContent extends ConsumerWidget {
+  final List<Job> jobs;
+  const _DashboardContent({required this.jobs});
 
-  const JobCard({
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var filteredJobs = jobs
+        .where((job) => job.scheduledDate != null
+            ? job.scheduledDate!.isAfter(DateTime.now())
+            : true)
+        .where((job) =>
+            job.jobStatus != JobStatus.completed ||
+            job.jobStatus != JobStatus.cancelled)
+        .sortedByCompare(
+                (j) => j.scheduledDate,
+                (a, b) {
+              if (a == null && b == null) return 0;
+              if (a == null) return 1;
+              if (b == null) return -1;
+              return a.compareTo(b);
+            }
+        )
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        SizedBox(
+          height: 100,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Job Dashboard",
+                  style: Theme.of(context).textTheme.displayLarge),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Row(
+            children: [
+              // Upcoming Jobs
+              Flexible(
+                flex: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Upcoming jobs",
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(border: Border.all()),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView.builder(
+                            itemCount: filteredJobs.length,
+                            itemBuilder: (context, index) {
+                              var job = filteredJobs[index];
+                              return InkWell(
+                                child: JobCard(jobId: job.id!),
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ViewJobPage(jobId: job.id!),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Maps
+              Flexible(
+                child: JobCalendar(
+                  jobs: jobs,
+                ),
+              )
+            ],
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class DashboardNavigationRail extends ConsumerWidget {
+  const DashboardNavigationRail({
     super.key,
-    required this.jobId,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var job = ref.watch(jobByIdPod(jobId));
-
-    return job.when(
-      error: (object, stacktrace) => Text("Error ${object.toString()}"),
-      loading: () => const Center(child: CircularProgressIndicator()),
-      data: (job) => SizedBox(
-        height: 250,
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(
-                children: [
-                  Text(
-                    "UD-${job.jobId}",
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelMedium!
-                        .copyWith(color: Colors.blueGrey.shade400),
-                  ),
-                  if (job.referenceId != null) ...[
-                    Spacer(),
-                    Text(
-                      "${job.referenceId}",
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelMedium!
-                          .copyWith(color: Colors.blueGrey.shade400),
-                    )
-                  ]
-                ],
-              ),
-              SizedBox(
-                height: 8,
-              ),
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Flexible(
-                      flex: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(job.title,
-                              style: Theme.of(context).textTheme.titleMedium),
-                          const SizedBox(
-                            height: 12,
-                          ),
-                          TagList(
-                            tags: job.tags,
-                          ),
-                          Expanded(
-                            child: Container(),
-                          ),
-                          if (job.client != null)
-                            Row(
-                              children: [
-                                const Icon(Icons.person),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                Text(job.client!.name),
-                              ],
-                            ),
-                          Row(
-                            children: [
-                              const Icon(Icons.home),
-                              const SizedBox(
-                                width: 8,
-                              ),
-                              Text(job.location)
-                            ],
-                          ),
-                        ],
-                      ),
+    return Column(
+      children: [
+        Expanded(
+          child: NavigationRail(
+            onDestinationSelected: (value) async {
+              switch (value) {
+                case 0:
+                  break;
+                case 1:
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ArchivePage(),
                     ),
-                    Flexible(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            JobStatusBadge(status: job.jobStatus),
-                            const SizedBox(height: 4),
-                            if (job.scheduledDate != null)
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Icon(Icons.calendar_month),
-                                  Text(dateFormat.format(job.scheduledDate!),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall),
-                                ],
-                              ),
-                            const SizedBox(height: 8),
-                            PaymentStatusBadge(status: job.paymentStatus),
-                            Expanded(child: Container()),
-                          ],
-                        ))
-                  ],
-                ),
+                  );
+                  break;
+                case 2:
+                  var pb = await ref.watch(authStorePod.future);
+                  pb.clear();
+                  ref.invalidate(authStorePod);
+                  break;
+                default:
+                  break;
+              }
+            },
+            destinations: const [
+              NavigationRailDestination(
+                icon: Icon(Icons.dashboard),
+                label: Text('Dashboard'),
               ),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [],
-              )
-            ]),
+              NavigationRailDestination(
+                icon: Icon(Icons.archive),
+                label: Text('Archive'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.logout),
+                label: Text('Logout'),
+              ),
+            ],
+            selectedIndex: 0,
+            labelType: NavigationRailLabelType.all,
           ),
         ),
-      ),
+        Spacer(),
+        IconButton(
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => SettingsPage(),
+            ),
+          ),
+          icon: Icon(Icons.settings),
+          tooltip: "Settings",
+          padding: EdgeInsets.all(8.0),
+        ),
+        SizedBox(
+          height: 16,
+        )
+      ],
     );
   }
 }
@@ -416,7 +296,7 @@ class _AddJobDialogState extends ConsumerState<_AddJobDialog> {
         var jobRm = await jobsCollection.create(
           body: {
             "title": _nameController.text,
-            "owner": await ref.read(userId.future) as String,
+            "owner": await ref.read(userId.future),
             "jobStatus": "unscheduled",
             "paymentStatus": "unquoted",
           },
@@ -432,7 +312,7 @@ class _AddJobDialogState extends ConsumerState<_AddJobDialog> {
             ),
           );
         }
-      });
+      }, errorMessage: "Error creating job", successMessage: "Job created.");
     }
   }
 }

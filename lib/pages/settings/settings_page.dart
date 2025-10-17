@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:job_app/api.dart';
-import 'package:job_app/models/user.dart';
 import 'package:job_app/pages/settings/details_settings.dart';
 import 'package:job_app/pages/settings/material_preset_settings.dart';
 import 'package:job_app/pages/settings/tag_color_settings.dart';
@@ -26,10 +24,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage>
 
   @override
   Widget build(BuildContext context) {
-    var user = ref
-        .watch(userDetailsPod)
-        .mapOrNull(data: (data) => User.fromRecord(data.value));
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),

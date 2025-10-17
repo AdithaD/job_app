@@ -42,3 +42,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 .vscode/launch.json
+/pb/pocketbase.exe
+/pb/pb_data/
+/devtools_options.yaml

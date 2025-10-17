@@ -8,13 +8,7 @@ import 'package:pocketbase/pocketbase.dart';
 
 part 'job.g.dart';
 
-enum JobStatus {
-  unscheduled,
-  scheduled,
-  inProgress,
-  completed,
-  cancelled,
-}
+enum JobStatus { unscheduled, scheduled, inProgress, completed, cancelled }
 
 enum PaymentStatus { unquoted, quoted, invoiced, paid }
 
@@ -40,6 +34,7 @@ class Job {
   PaymentStatus paymentStatus;
   double? quotedPrice;
   double receivedAmount;
+  double discount;
 
   List<JobMaterial> materials;
 
@@ -58,29 +53,30 @@ class Job {
   double get totalExpenses => materials.isEmpty
       ? 0.0
       : materials
-          .map((material) => material.price * material.quantity)
-          .reduce((value, element) => value + element);
+            .map((material) => material.price * material.quantity)
+            .reduce((value, element) => value + element);
 
-  Job(
-      {this.id = "",
-      required this.jobId,
-      required this.title,
-      required this.client,
-      required this.location,
-      this.referenceId,
-      this.description,
-      this.scheduledDate,
-      this.jobStatus = JobStatus.unscheduled,
-      this.paymentStatus = PaymentStatus.unquoted,
-      this.receivedAmount = 0.0,
-      this.quotedPrice,
-      this.tags = const [],
-      List<JobMaterial>? materials,
-      List<JobAttachment>? attachments,
-      List<Note>? notes})
-      : materials = materials ?? [],
-        attachments = attachments ?? [],
-        notes = notes ?? [];
+  Job({
+    this.id = "",
+    required this.jobId,
+    required this.title,
+    required this.client,
+    required this.location,
+    required this.discount,
+    this.referenceId,
+    this.description,
+    this.scheduledDate,
+    this.jobStatus = JobStatus.unscheduled,
+    this.paymentStatus = PaymentStatus.unquoted,
+    this.receivedAmount = 0.0,
+    this.quotedPrice,
+    this.tags = const [],
+    List<JobMaterial>? materials,
+    List<JobAttachment>? attachments,
+    List<Note>? notes,
+  }) : materials = materials ?? [],
+       attachments = attachments ?? [],
+       notes = notes ?? [];
 }
 
 String? clientIdGetter(Client? client) => client?.id;

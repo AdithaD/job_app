@@ -44,7 +44,6 @@ class ViewJobPage extends ConsumerWidget {
 
     var title = job.whenOrNull(data: (job) => job.title);
 
-    // TODO: Change it so that the async value is evaluated in the body of the scaffold.
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -165,13 +164,17 @@ class ViewJobPage extends ConsumerWidget {
     );
     if (response == 'OK') {
       if (context.mounted) {
-        await requestErrorHandler(context, () async {
-          var jobsCollection = await ref.read(jobsPod.future);
-          await jobsCollection.delete(jobId);
-          ref.invalidate(allJobsPod);
-
-          if (context.mounted) Navigator.of(context).pop();
-        });
+        await requestErrorHandler(
+          context,
+          () async {
+            var jobsCollection = await ref.read(jobsPod.future);
+            await jobsCollection.delete(jobId);
+            ref.invalidate(allJobsPod);
+          },
+          errorMessage: "Error deleting job",
+          successMessage: "Job deleted.",
+        );
+        if (context.mounted) Navigator.of(context).pop();
       }
     }
   }

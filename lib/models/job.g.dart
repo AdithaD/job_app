@@ -7,60 +7,65 @@ part of 'job.dart';
 // **************************************************************************
 
 Job _$JobFromJson(Map<String, dynamic> json) => Job(
-      id: json['id'] as String? ?? "",
-      jobId: (json['jobId'] as num).toInt(),
-      title: json['title'] as String,
-      client: readExpandedClientJSON(json, 'client') == null
-          ? null
-          : Client.fromJson(
-              readExpandedClientJSON(json, 'client') as Map<String, dynamic>),
-      location: json['location'] as String,
-      referenceId: json['referenceId'] as String?,
-      description: json['description'] as String?,
-      scheduledDate: readDateTimeJSON(json, 'scheduledDate') == null
-          ? null
-          : DateTime.parse(readDateTimeJSON(json, 'scheduledDate') as String),
-      jobStatus: $enumDecodeNullable(_$JobStatusEnumMap, json['jobStatus']) ??
-          JobStatus.unscheduled,
-      paymentStatus:
-          $enumDecodeNullable(_$PaymentStatusEnumMap, json['paymentStatus']) ??
-              PaymentStatus.unquoted,
-      receivedAmount: (json['receivedAmount'] as num?)?.toDouble() ?? 0.0,
-      quotedPrice: (json['quotedPrice'] as num?)?.toDouble(),
-      tags: (readExpandedTagsJSON(json, 'tags') as List<dynamic>?)
-              ?.map((e) => Tag.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      materials: (json['materials'] as List<dynamic>?)
-          ?.map((e) => JobMaterial.fromJson(e as Map<String, dynamic>))
+  id: json['id'] as String? ?? "",
+  jobId: (json['jobId'] as num).toInt(),
+  title: json['title'] as String,
+  client: readExpandedClientJSON(json, 'client') == null
+      ? null
+      : Client.fromJson(
+          readExpandedClientJSON(json, 'client') as Map<String, dynamic>,
+        ),
+  location: json['location'] as String,
+  discount: (json['discount'] as num).toDouble(),
+  referenceId: json['referenceId'] as String?,
+  description: json['description'] as String?,
+  scheduledDate: readDateTimeJSON(json, 'scheduledDate') == null
+      ? null
+      : DateTime.parse(readDateTimeJSON(json, 'scheduledDate') as String),
+  jobStatus:
+      $enumDecodeNullable(_$JobStatusEnumMap, json['jobStatus']) ??
+      JobStatus.unscheduled,
+  paymentStatus:
+      $enumDecodeNullable(_$PaymentStatusEnumMap, json['paymentStatus']) ??
+      PaymentStatus.unquoted,
+  receivedAmount: (json['receivedAmount'] as num?)?.toDouble() ?? 0.0,
+  quotedPrice: (json['quotedPrice'] as num?)?.toDouble(),
+  tags:
+      (readExpandedTagsJSON(json, 'tags') as List<dynamic>?)
+          ?.map((e) => Tag.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  materials: (json['materials'] as List<dynamic>?)
+      ?.map((e) => JobMaterial.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  attachments:
+      (readExpandedAttachmentsJSON(json, 'attachments') as List<dynamic>?)
+          ?.map((e) => JobAttachment.fromJson(e as Map<String, dynamic>))
           .toList(),
-      attachments:
-          (readExpandedAttachmentsJSON(json, 'attachments') as List<dynamic>?)
-              ?.map((e) => JobAttachment.fromJson(e as Map<String, dynamic>))
-              .toList(),
-      notes: (readExpandedNotesJSON(json, 'notes') as List<dynamic>?)
-          ?.map((e) => Note.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
+  notes: (readExpandedNotesJSON(json, 'notes') as List<dynamic>?)
+      ?.map((e) => Note.fromJson(e as Map<String, dynamic>))
+      .toList(),
+);
 
 Map<String, dynamic> _$JobToJson(Job instance) => <String, dynamic>{
-      'id': instance.id,
-      'jobId': instance.jobId,
-      'referenceId': instance.referenceId,
-      'title': instance.title,
-      'description': instance.description,
-      'client': clientIdGetter(instance.client),
-      'location': instance.location,
-      'tags': tagIdsGetter(instance.tags),
-      'scheduledDate': instance.scheduledDate?.toIso8601String(),
-      'jobStatus': _$JobStatusEnumMap[instance.jobStatus]!,
-      'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
-      'quotedPrice': instance.quotedPrice,
-      'receivedAmount': instance.receivedAmount,
-      'materials': instance.materials,
-      'notes': noteIdsGetter(instance.notes),
-      'attachments': attachmentIdsGetter(instance.attachments),
-    };
+  'id': instance.id,
+  'jobId': instance.jobId,
+  'referenceId': instance.referenceId,
+  'title': instance.title,
+  'description': instance.description,
+  'client': clientIdGetter(instance.client),
+  'location': instance.location,
+  'tags': tagIdsGetter(instance.tags),
+  'scheduledDate': instance.scheduledDate?.toIso8601String(),
+  'jobStatus': _$JobStatusEnumMap[instance.jobStatus]!,
+  'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
+  'quotedPrice': instance.quotedPrice,
+  'receivedAmount': instance.receivedAmount,
+  'discount': instance.discount,
+  'materials': instance.materials,
+  'notes': noteIdsGetter(instance.notes),
+  'attachments': attachmentIdsGetter(instance.attachments),
+};
 
 const _$JobStatusEnumMap = {
   JobStatus.unscheduled: 'unscheduled',
